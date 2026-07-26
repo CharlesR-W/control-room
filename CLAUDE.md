@@ -18,7 +18,7 @@ serious systems-simulation platform. The shipped scenario is **The Narrows**.
 
 Run `npm run check` before publishing. This executes strict TypeScript checking,
 the deterministic/invariant test suite (including the 100-seed smoke), and the
-production Next.js build.
+production vinext build.
 
 ## Product boundaries
 

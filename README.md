@@ -100,7 +100,7 @@ npm run build
 npm start
 ```
 
-The interaction model runs in the browser. The Next.js process serves the application; it does not adjudicate turns or store run state in a server database.
+The interaction model runs in the browser. Vinext serves the Next-compatible application shell; it does not adjudicate turns or store run state in a server database.
 
 ## Test and verify
 
@@ -180,6 +180,6 @@ The numerical simulation and run handling are local-first and require no account
 
 ## Deployment and source availability
 
-The application is designed for a Node-compatible Next.js host. A deployment should run `npm run check`, build the exact public commit, and expose that commit/version in the release record.
+The application uses the Next.js App Router API and a pinned vinext build adapter to produce the host’s Node-compatible artifact. A deployment should run `npm run check`, build the exact public commit, and expose that commit/version in the release record.
 
 The source repository is public for inspection. **No reuse license has been selected yet.** Public visibility alone does not grant permission to copy, redistribute, or create derivative works; a future license decision should be recorded explicitly rather than inferred.

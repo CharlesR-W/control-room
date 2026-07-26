@@ -150,7 +150,7 @@ Regional returns can be biased and delayed; audits narrow only their named uncer
 
 ## UI boundary and persistence
 
-The Next.js application provides the shell and initial delivery, while the game runs as a React client component. UI responsibilities are:
+The Next.js App Router surface provides the shell while vinext produces the deployment artifact; the game itself runs as a React client component. UI responsibilities are:
 
 - render the visible snapshot and declared metadata;
 - maintain an editable draft package;
