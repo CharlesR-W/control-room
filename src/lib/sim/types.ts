@@ -435,6 +435,15 @@ export interface VisibleAlert {
   message: string;
 }
 
+export interface VisibleCargoAvailability {
+  cargo: Cargo;
+  forTurn: number;
+  queuedNowKt: number;
+  confirmedByTurnKt: number;
+  possibleByTurnKt: number;
+  uncertainKt: number;
+}
+
 export interface VisibleSnapshot {
   scenarioId: string;
   title: string;
@@ -456,12 +465,32 @@ export interface VisibleSnapshot {
     railCapacityKt: number;
     implementationTeamsAvailable: number;
   };
+  operations: {
+    centralGrainKt: number;
+    copperAtPortKt: number;
+    truckCapacityKt: number;
+    reportedDomesticGrainOutputKt: number;
+    domesticDieselSupplyKt: number;
+    implementationTeamsTotal: number;
+    implementationTeamsInFlight: number;
+    knownPortRepairEfficiency: number | null;
+    knownPortClosureTurn: number | null;
+  };
+  finance: {
+    creditPrincipalCents: number;
+    creditLimitCents: number;
+    creditRemainingCents: number;
+    contractAdvanceLiabilityCents: number;
+    arrearsCents: number;
+    contractualPenaltiesCents: number;
+  };
   regions: Record<
     RegionId,
     {
       id: RegionId;
       label: string;
       reportedGrainKt: number;
+      weeklyDemandKt: number;
       reportedCoverageWeeks: number;
       activeRation: RationLevel;
       serviceStatus: "secure" | "at-risk" | "shortfall";
@@ -475,6 +504,7 @@ export interface VisibleSnapshot {
   activeActions: ActionStatus[];
   pendingRationPolicy: PendingRationPolicy | null;
   earlyPaymentOffer: EarlyPaymentOffer;
+  earlyPaymentObligation: EarlyPaymentObligation | null;
   alerts: VisibleAlert[];
   latestTrace: Contribution[];
   latestBindings: BindingRecord[];

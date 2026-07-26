@@ -26,6 +26,7 @@ import { AfterActionReview } from "./AfterActionReview";
 import { DecisionBook } from "./DecisionBook";
 import { Icon, type IconName } from "./Icons";
 import { Briefing, Landing } from "./Landing";
+import { MechanicsRulebook } from "./MechanicsRulebook";
 import { formatDate, formatUsd, StatusLabel, statusFromObjective } from "./Panels";
 import {
   ScreenRouter,
@@ -252,6 +253,7 @@ function TopBar({
   runMenuOpen,
   onToggleMobileNav,
   onToggleBook,
+  onOpenMechanics,
   onToggleRunMenu,
   onExport,
   onImport,
@@ -265,6 +267,7 @@ function TopBar({
   runMenuOpen: boolean;
   onToggleMobileNav: () => void;
   onToggleBook: () => void;
+  onOpenMechanics: () => void;
   onToggleRunMenu: () => void;
   onExport: () => void;
   onImport: (file: File) => void;
@@ -301,6 +304,14 @@ function TopBar({
         <span className="turn-pill">
           Week {visible.turn}/{visible.turnsTotal}
         </span>
+        <button
+          className="button button--ghost button--small mechanics-open-button"
+          type="button"
+          onClick={onOpenMechanics}
+        >
+          <Icon name="info" />
+          Mechanics
+        </button>
         <button
           className="button button--primary button--small book-open-button"
           type="button"
@@ -348,6 +359,10 @@ function TopBar({
               <button type="button" role="menuitem" onClick={onReplay}>
                 <Icon name="timeline" />
                 Verify deterministic replay
+              </button>
+              <button type="button" role="menuitem" onClick={onOpenMechanics}>
+                <Icon name="info" />
+                Open mechanics rulebook
               </button>
               {visible.complete ? (
                 <button type="button" role="menuitem" onClick={onAar}>
@@ -842,6 +857,7 @@ function SimulationDesk({
   drawer,
   outcome,
   reviewOpen,
+  mechanicsOpen,
   bookOpen,
   bookSection,
   navOpen,
@@ -856,6 +872,8 @@ function SimulationDesk({
   onCloseBook,
   onToggleNav,
   onToggleRunMenu,
+  onOpenMechanics,
+  onCloseMechanics,
   onReview,
   onCancelReview,
   onCommit,
@@ -876,6 +894,7 @@ function SimulationDesk({
   drawer: DrawerState;
   outcome: TurnRecord | null;
   reviewOpen: boolean;
+  mechanicsOpen: boolean;
   bookOpen: boolean;
   bookSection: string | null;
   navOpen: boolean;
@@ -890,6 +909,8 @@ function SimulationDesk({
   onCloseBook: () => void;
   onToggleNav: () => void;
   onToggleRunMenu: () => void;
+  onOpenMechanics: () => void;
+  onCloseMechanics: () => void;
   onReview: () => void;
   onCancelReview: () => void;
   onCommit: () => void;
@@ -917,6 +938,7 @@ function SimulationDesk({
         runMenuOpen={runMenuOpen}
         onToggleMobileNav={onToggleNav}
         onToggleBook={() => onOpenBook()}
+        onOpenMechanics={onOpenMechanics}
         onToggleRunMenu={onToggleRunMenu}
         onExport={onExport}
         onImport={onImport}
@@ -953,6 +975,7 @@ function SimulationDesk({
           requestedSection={bookSection}
           onChange={onDraft}
           onReview={onReview}
+          onOpenMechanics={onOpenMechanics}
           onClose={onCloseBook}
         />
       </div>
@@ -963,6 +986,13 @@ function SimulationDesk({
           validation={validation}
           onCancel={onCancelReview}
           onCommit={onCommit}
+        />
+      ) : null}
+      {mechanicsOpen ? (
+        <MechanicsRulebook
+          visible={visible}
+          decision={draft}
+          onClose={onCloseMechanics}
         />
       ) : null}
       {outcome ? (
@@ -987,6 +1017,7 @@ export function ControlRoomGame() {
   const [drawer, setDrawer] = useState<DrawerState>(null);
   const [outcome, setOutcome] = useState<TurnRecord | null>(null);
   const [reviewOpen, setReviewOpen] = useState(false);
+  const [mechanicsOpen, setMechanicsOpen] = useState(false);
   const [bookOpen, setBookOpen] = useState(false);
   const [bookSection, setBookSection] = useState<string | null>(null);
   const [navOpen, setNavOpen] = useState(false);
@@ -1205,6 +1236,7 @@ export function ControlRoomGame() {
       drawer={drawer}
       outcome={outcome}
       reviewOpen={reviewOpen}
+      mechanicsOpen={mechanicsOpen}
       bookOpen={bookOpen}
       bookSection={bookSection}
       navOpen={navOpen}
@@ -1222,6 +1254,11 @@ export function ControlRoomGame() {
       onCloseBook={() => setBookOpen(false)}
       onToggleNav={() => setNavOpen((current) => !current)}
       onToggleRunMenu={() => setRunMenuOpen((current) => !current)}
+      onOpenMechanics={() => {
+        setRunMenuOpen(false);
+        setMechanicsOpen(true);
+      }}
+      onCloseMechanics={() => setMechanicsOpen(false)}
       onReview={() => setReviewOpen(true)}
       onCancelReview={() => setReviewOpen(false)}
       onCommit={commit}

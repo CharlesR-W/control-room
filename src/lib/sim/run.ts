@@ -19,6 +19,7 @@ import {
 import {
   availableActionsForState,
   createInitialWorldState,
+  ongoingAdminClaimsForNextTurn,
   reportedTotalGrainKt,
   totalWeeklyDemandKt,
   validateDecision,
@@ -268,6 +269,7 @@ export function getVisibleSnapshot(run: SimulationRun): VisibleSnapshot {
           id: region,
           label: item.label,
           reportedGrainKt: item.reportedGrainKt,
+          weeklyDemandKt: item.weeklyDemandKt,
           reportedCoverageWeeks: round(
             item.reportedGrainKt / Math.max(0.01, item.weeklyDemandKt),
             2,
@@ -311,6 +313,13 @@ export function getVisibleSnapshot(run: SimulationRun): VisibleSnapshot {
       };
     },
   );
+  const currentWeatherWarning = state.events
+    .filter(
+      (item) =>
+        item.type === "weather-warning" &&
+        item.turn === state.turn,
+    )
+    .at(-1);
 
   return {
     scenarioId: SCENARIO_ID,
@@ -335,7 +344,35 @@ export function getVisibleSnapshot(run: SimulationRun): VisibleSnapshot {
       portRepairProgressPct: state.repairProgressPct,
       railCapacityKt: state.railCapacityKt,
       implementationTeamsAvailable:
-        state.implementationTeamsTotal - pendingImplementationTeams(state),
+        state.implementationTeamsTotal -
+        ongoingAdminClaimsForNextTurn(state),
+    },
+    operations: {
+      centralGrainKt: state.grainCentralKt,
+      copperAtPortKt: state.copperAtPortKt,
+      truckCapacityKt: state.truckCapacityKt,
+      reportedDomesticGrainOutputKt:
+        state.observations.reportedDomesticOutputKt,
+      domesticDieselSupplyKt: state.domesticDieselSupplyKt,
+      implementationTeamsTotal: state.implementationTeamsTotal,
+      implementationTeamsInFlight: pendingImplementationTeams(state),
+      knownPortRepairEfficiency:
+        state.observations.knownPortRepairEfficiency,
+      knownPortClosureTurn: currentWeatherWarning
+        ? state.variant.closureTurn
+        : null,
+    },
+    finance: {
+      creditPrincipalCents: state.finance.creditPrincipalCents,
+      creditLimitCents: state.finance.creditLimitCents,
+      creditRemainingCents:
+        state.finance.creditLimitCents -
+        state.finance.creditPrincipalCents,
+      contractAdvanceLiabilityCents:
+        state.finance.contractAdvanceLiabilityCents,
+      arrearsCents: state.finance.arrearsCents,
+      contractualPenaltiesCents:
+        state.finance.contractualPenaltiesCents,
     },
     regions,
     shipments: visibleShipments,
@@ -357,6 +394,7 @@ export function getVisibleSnapshot(run: SimulationRun): VisibleSnapshot {
             availableUntilTurn: -1,
           }
         : cloneJson(state.earlyPaymentOffer),
+    earlyPaymentObligation: cloneJson(state.earlyPaymentObligation),
     alerts: visibleAlerts(run),
     latestTrace,
     latestBindings: fullTraceVisible

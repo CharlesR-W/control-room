@@ -18,6 +18,7 @@ import {
   stepWorld,
   trueTotalGrainKt,
   validateDecision,
+  visibleCargoAvailability,
 } from "./index.ts";
 import type {
   Contribution,
@@ -354,6 +355,161 @@ test("the player snapshot does not reveal a future seeded event schedule", () =>
   assert.equal(
     JSON.stringify(visible).includes("regularReportBias"),
     false,
+  );
+});
+
+test("visible decision support exposes known operating stocks and turn-one cargo bounds", () => {
+  const run = createInitialRun(123, "professional");
+  const visible = getVisibleSnapshot(run);
+  const grain = visibleCargoAvailability(visible, "grain", 1);
+  const diesel = visibleCargoAvailability(visible, "diesel", 1);
+
+  assert.deepEqual(grain, {
+    cargo: "grain",
+    forTurn: 1,
+    queuedNowKt: 0,
+    confirmedByTurnKt: 5,
+    possibleByTurnKt: 5,
+    uncertainKt: 0,
+  });
+  assert.deepEqual(diesel, {
+    cargo: "diesel",
+    forTurn: 1,
+    queuedNowKt: 0,
+    confirmedByTurnKt: 0,
+    possibleByTurnKt: 0,
+    uncertainKt: 0,
+  });
+  assert.equal(visible.operations.centralGrainKt, 14);
+  assert.equal(visible.operations.copperAtPortKt, 4);
+  assert.equal(visible.operations.truckCapacityKt, 3);
+  assert.equal(visible.operations.reportedDomesticGrainOutputKt, 3);
+  assert.equal(visible.operations.domesticDieselSupplyKt, 1);
+  assert.equal(visible.operations.implementationTeamsTotal, 6);
+  assert.equal(visible.headline.implementationTeamsAvailable, 6);
+  assert.equal(visible.finance.creditPrincipalCents, 0);
+  assert.equal(visible.finance.creditRemainingCents, 1_200_000_000);
+  assert.equal(visible.earlyPaymentObligation, null);
+});
+
+test("visible cargo bounds use disclosed windows without revealing the seeded arrival", () => {
+  const early = createInitialRun(123, "professional");
+  early.state.turn = 1;
+  early.state.shipments = [
+    {
+      id: "shipment:windowed",
+      cargo: "grain",
+      supplier: "distant-discount",
+      orderedTurn: 1,
+      arrivalTurn: 5,
+      quantityKt: 1,
+      remainingKt: 1,
+      unitCostCentsPerKt: 0,
+      status: "sailing",
+      actionId: "action:1:imports:1",
+    },
+  ];
+  const late = JSON.parse(JSON.stringify(early)) as SimulationRun;
+  late.state.shipments[0].arrivalTurn = 6;
+
+  const earlyVisible = getVisibleSnapshot(early);
+  const lateVisible = getVisibleSnapshot(late);
+  assert.equal(earlyVisible.shipments[0].arrivalTurn, null);
+  assert.equal(lateVisible.shipments[0].arrivalTurn, null);
+  assert.deepEqual(
+    visibleCargoAvailability(earlyVisible, "grain", 5),
+    {
+      cargo: "grain",
+      forTurn: 5,
+      queuedNowKt: 0,
+      confirmedByTurnKt: 0,
+      possibleByTurnKt: 1,
+      uncertainKt: 1,
+    },
+  );
+  assert.deepEqual(
+    visibleCargoAvailability(earlyVisible, "grain", 6),
+    {
+      cargo: "grain",
+      forTurn: 6,
+      queuedNowKt: 0,
+      confirmedByTurnKt: 1,
+      possibleByTurnKt: 1,
+      uncertainKt: 0,
+    },
+  );
+  assert.deepEqual(
+    visibleCargoAvailability(earlyVisible, "grain", 5),
+    visibleCargoAvailability(lateVisible, "grain", 5),
+  );
+});
+
+test("visible team availability matches next-turn validation after maturing work", () => {
+  let run = createInitialRun(321, "professional");
+  const audit = createDefaultDecision(run.state);
+  audit.audit = "crop";
+  run = stepRun(run, audit);
+
+  const visible = getVisibleSnapshot(run);
+  const next = createDefaultDecision(run.state);
+  const validation = validateDecision(run.state, next);
+  assert.equal(visible.operations.implementationTeamsInFlight, 1);
+  assert.equal(visible.headline.implementationTeamsAvailable, 6);
+  assert.equal(validation.preview.adminTeamsAvailable, 6);
+});
+
+test("cargo availability and unloading use remaining quantity, and spare berth expires", () => {
+  const run = createInitialRun(25, "professional");
+  const state = JSON.parse(JSON.stringify(run.state)) as WorldState;
+  state.turn = 1;
+  state.shipments = [
+    {
+      id: "shipment:partial",
+      cargo: "grain",
+      supplier: "standard",
+      orderedTurn: -1,
+      arrivalTurn: 1,
+      quantityKt: 5,
+      remainingKt: 3,
+      unitCostCentsPerKt: 0,
+      status: "queued-at-port",
+      actionId: "opening-commitments",
+    },
+  ];
+  const projectedRun = { ...run, state };
+  const visible = getVisibleSnapshot(projectedRun);
+  const availability = visibleCargoAvailability(visible, "grain", 2);
+  assert.equal(availability.confirmedByTurnKt, 3);
+  assert.equal(availability.possibleByTurnKt, 3);
+  assert.equal(availability.queuedNowKt, 3);
+  assert.equal(visible.shipments[0].quantityKt, 5);
+  assert.equal(visible.shipments[0].remainingKt, 3);
+
+  const decision = createDefaultDecision(state);
+  decision.portSchedule = {
+    grainImportsKt: 6,
+    dieselImportsKt: 0,
+    copperExportsKt: 0,
+    repairEquipmentKt: 0,
+  };
+  decision.railAndTruck = {
+    railGrainKt: 0,
+    railCopperKt: 0,
+    grainSharesPct: { capital: 0, north: 0, interior: 0 },
+    truckRegion: "none",
+    truckGrainKt: 0,
+  };
+  decision.copperPlan.mineTargetKt = 0;
+  const result = stepWorld(state, decision);
+  const portGrain = result.bindingConstraints.find(
+    (item) => item.system === "port-grain",
+  );
+  assert.equal(portGrain?.realized, 3);
+  assert.equal(result.state.shipments[0].remainingKt, 0);
+  assert.equal(
+    result.bindingConstraints.find((item) => item.system === "port-diesel")
+      ?.realized,
+    0,
   );
 });
 

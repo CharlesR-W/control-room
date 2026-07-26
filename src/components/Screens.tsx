@@ -7,8 +7,17 @@ import type {
   SimulationRun,
   VisibleSnapshot,
 } from "@/lib/sim/types";
-import { branchRun, getVisibleSnapshot } from "@/lib/sim";
-import { REGION_WEEKLY_DEMAND_KT } from "@/lib/sim/constants";
+import {
+  branchRun,
+  getVisibleSnapshot,
+  importCostCents,
+  visibleCargoAvailability,
+} from "@/lib/sim";
+import {
+  REGION_WEEKLY_DEMAND_KT,
+  REPAIR_ASSUMPTIONS,
+  WEEKLY_CREDIT_INTEREST_RATE,
+} from "@/lib/sim/constants";
 import { Icon } from "./Icons";
 import {
   EmptyState,
@@ -416,9 +425,12 @@ export function SituationScreen(props: ScreenProps) {
                   </span>
                   <span className="commitment-row__copy">
                     <strong>
-                      {shipment.quantityKt.toFixed(1)} kt {shipment.cargo}
+                      {shipment.remainingKt.toFixed(1)} kt {shipment.cargo}
                     </strong>
                     <span>
+                      {shipment.remainingKt < shipment.quantityKt
+                        ? `Remaining of ${shipment.quantityKt.toFixed(1)} kt · `
+                        : ""}
                       {shipment.supplier === "opening-pipeline"
                         ? "Opening commitment"
                         : shipment.supplier.replaceAll("-", " ")}
@@ -480,7 +492,7 @@ export function SituationScreen(props: ScreenProps) {
 }
 
 export function SupplyScreen(props: ScreenProps) {
-  const { visible, onOpenBook, onOpenTrace } = props;
+  const { visible, decision, onOpenBook, onOpenTrace } = props;
   const grainTrace = metricTraces(visible, ["grain"]);
   const dieselTrace = metricTraces(visible, ["diesel"]);
   const latestCropReport = [...visible.reports]
@@ -490,7 +502,16 @@ export function SupplyScreen(props: ScreenProps) {
     typeof latestCropReport?.values.weeklyOutputKt === "number"
       ? latestCropReport.values.weeklyOutputKt
       : 3;
-
+  const grainAvailability = visibleCargoAvailability(
+    visible,
+    "grain",
+    decision.forTurn,
+  );
+  const dieselAvailability = visibleCargoAvailability(
+    visible,
+    "diesel",
+    decision.forTurn,
+  );
   function waterfallItems(
     closing: number,
     traces: Contribution[],
@@ -538,6 +559,34 @@ export function SupplyScreen(props: ScreenProps) {
           </button>
         }
       />
+
+      <div className="operational-stock-strip" aria-label="Measured operational stocks">
+        <div>
+          <span>Central grain</span>
+          <strong>{visible.operations.centralGrainKt.toFixed(1)} kt</strong>
+          <small>Measured dispatch stock</small>
+        </div>
+        <div>
+          <span>Reported regional grain</span>
+          <strong>
+            {Object.values(visible.regions)
+              .reduce((sum, region) => sum + region.reportedGrainKt, 0)
+              .toFixed(1)}{" "}
+            kt
+          </strong>
+          <small>Lagged provincial returns</small>
+        </div>
+        <div>
+          <span>Diesel</span>
+          <strong>{visible.headline.dieselKt.toFixed(1)} kt</strong>
+          <small>Measured tank ledger</small>
+        </div>
+        <div>
+          <span>Copper at port</span>
+          <strong>{visible.operations.copperAtPortKt.toFixed(1)} kt</strong>
+          <small>Measured export stock</small>
+        </div>
+      </div>
 
       <div className="grid grid--2">
         <Panel
@@ -587,6 +636,24 @@ export function SupplyScreen(props: ScreenProps) {
         flush
         className="panel--raised"
       >
+        <div className="pipeline-summary" aria-label={`Cargo availability for week ${decision.forTurn}`}>
+          <div>
+            <span>Grain confirmed</span>
+            <strong>{grainAvailability.confirmedByTurnKt.toFixed(1)} kt</strong>
+          </div>
+          <div>
+            <span>Grain possible</span>
+            <strong>{grainAvailability.possibleByTurnKt.toFixed(1)} kt</strong>
+          </div>
+          <div>
+            <span>Diesel confirmed</span>
+            <strong>{dieselAvailability.confirmedByTurnKt.toFixed(1)} kt</strong>
+          </div>
+          <div>
+            <span>Diesel possible</span>
+            <strong>{dieselAvailability.possibleByTurnKt.toFixed(1)} kt</strong>
+          </div>
+        </div>
         <div className="pipeline">
           <div className="pipeline__axis" aria-hidden="true">
             <span />
@@ -607,7 +674,9 @@ export function SupplyScreen(props: ScreenProps) {
               <div className="pipeline__row" key={shipment.id}>
                 <span className="pipeline__label">
                   <strong>
-                    {shipment.quantityKt.toFixed(1)} kt {shipment.cargo}
+                    {shipment.remainingKt > 0
+                      ? `${shipment.remainingKt.toFixed(1)} kt remaining of ${shipment.quantityKt.toFixed(1)} kt ${shipment.cargo}`
+                      : `${shipment.quantityKt.toFixed(1)} kt ${shipment.cargo} cleared`}
                   </strong>
                   <span>
                     Arrival {shipmentArrivalLabel(shipment)} ·{" "}
@@ -704,6 +773,18 @@ export function TransportScreen(props: ScreenProps) {
     decision.portSchedule.repairEquipmentKt;
   const railRequested =
     decision.railAndTruck.railGrainKt + decision.railAndTruck.railCopperKt;
+  const grainAvailability = visibleCargoAvailability(
+    visible,
+    "grain",
+    decision.forTurn,
+  );
+  const dieselAvailability = visibleCargoAvailability(
+    visible,
+    "diesel",
+    decision.forTurn,
+  );
+  const portClosed =
+    visible.operations.knownPortClosureTurn === decision.forTurn;
   const mapValues: NetworkValues = {
     portUtilization: Math.min(
       1,
@@ -773,15 +854,54 @@ export function TransportScreen(props: ScreenProps) {
       <div className="grid grid--2" style={{ marginTop: 14 }}>
         <Panel
           title="Proposed port schedule"
-          subtitle={`Weekly throughput ${visible.headline.portCapacityKt.toFixed(0)} kt`}
+          subtitle={
+            portClosed
+              ? `Disclosed closure in W${decision.forTurn} · nominal capacity ${visible.headline.portCapacityKt.toFixed(0)} kt`
+              : `Weekly throughput ${visible.headline.portCapacityKt.toFixed(0)} kt`
+          }
           tools={
             <StatusLabel
-              tone={portRequested > visible.headline.portCapacityKt ? "critical" : portRequested > visible.headline.portCapacityKt * 0.9 ? "watch" : "stable"}
+              tone={
+                portClosed ||
+                portRequested > visible.headline.portCapacityKt
+                  ? "critical"
+                  : portRequested > visible.headline.portCapacityKt * 0.9
+                    ? "watch"
+                    : "stable"
+              }
             >
-              {portRequested.toFixed(1)} / {visible.headline.portCapacityKt.toFixed(0)} kt
+              {portClosed
+                ? `${portRequested.toFixed(1)} kt claimed · 0 realizable`
+                : `${portRequested.toFixed(1)} / ${visible.headline.portCapacityKt.toFixed(0)} kt`}
             </StatusLabel>
           }
         >
+          <div className="source-availability" aria-label="Port source availability">
+            <div>
+              <span>Grain cargo by W{decision.forTurn}</span>
+              <strong>
+                {grainAvailability.confirmedByTurnKt.toFixed(1)}
+                {grainAvailability.uncertainKt > 0
+                  ? `–${grainAvailability.possibleByTurnKt.toFixed(1)}`
+                  : ""}{" "}
+                kt
+              </strong>
+            </div>
+            <div>
+              <span>Diesel cargo by W{decision.forTurn}</span>
+              <strong>
+                {dieselAvailability.confirmedByTurnKt.toFixed(1)}
+                {dieselAvailability.uncertainKt > 0
+                  ? `–${dieselAvailability.possibleByTurnKt.toFixed(1)}`
+                  : ""}{" "}
+                kt
+              </strong>
+            </div>
+            <div>
+              <span>Copper at port now</span>
+              <strong>{visible.operations.copperAtPortKt.toFixed(1)} kt</strong>
+            </div>
+          </div>
           <div
             className="allocation-bar"
             aria-label={`Proposed port allocation totals ${portRequested.toFixed(1)} of ${visible.headline.portCapacityKt} kilotonnes`}
@@ -802,8 +922,16 @@ export function TransportScreen(props: ScreenProps) {
           <div className="capacity-summary">
             <div>
               <div className="capacity-summary__copy">
-                <span>Capacity claimed</span>
-                <strong>{Math.round((portRequested / visible.headline.portCapacityKt) * 100)}%</strong>
+                <span>
+                  {portClosed
+                    ? "Nominal claim / effective throughput"
+                    : "Capacity claimed"}
+                </span>
+                <strong>
+                  {portClosed
+                    ? `${portRequested.toFixed(1)} kt / 0.0 kt`
+                    : `${Math.round((portRequested / visible.headline.portCapacityKt) * 100)}%`}
+                </strong>
               </div>
               <Meter
                 value={portRequested}
@@ -812,8 +940,19 @@ export function TransportScreen(props: ScreenProps) {
                 tone={portRequested > visible.headline.portCapacityKt ? "red" : "amber"}
               />
             </div>
-            <StatusLabel tone={portRequested <= visible.headline.portCapacityKt ? "stable" : "critical"}>
-              {portRequested <= visible.headline.portCapacityKt ? "Feasible" : "Overbooked"}
+            <StatusLabel
+              tone={
+                portClosed ||
+                portRequested > visible.headline.portCapacityKt
+                  ? "critical"
+                  : "stable"
+              }
+            >
+              {portClosed
+                ? "Closed · 0 realizable"
+                : portRequested <= visible.headline.portCapacityKt
+                  ? "Feasible"
+                  : "Overbooked"}
             </StatusLabel>
           </div>
         </Panel>
@@ -829,6 +968,20 @@ export function TransportScreen(props: ScreenProps) {
             </StatusLabel>
           }
         >
+          <div className="source-availability" aria-label="Freight source availability">
+            <div>
+              <span>Central grain now</span>
+              <strong>{visible.operations.centralGrainKt.toFixed(1)} kt</strong>
+            </div>
+            <div>
+              <span>Diesel now</span>
+              <strong>{visible.headline.dieselKt.toFixed(1)} kt</strong>
+            </div>
+            <div>
+              <span>Truck ceiling</span>
+              <strong>{visible.operations.truckCapacityKt.toFixed(1)} kt</strong>
+            </div>
+          </div>
           <div className="schedule-grid">
             <div className="schedule-row">
               <span className="schedule-row__label">
@@ -956,6 +1109,39 @@ export function FinanceScreen(props: ScreenProps) {
               />
             </div>
           </div>
+          <div className="finance-obligation-strip" aria-label="Known financial obligations">
+            <div>
+              <span>Credit principal</span>
+              <strong>{formatUsd(visible.finance.creditPrincipalCents, true)}</strong>
+              <small>
+                {(WEEKLY_CREDIT_INTEREST_RATE * 100).toFixed(1)}% weekly
+              </small>
+            </div>
+            <div>
+              <span>Credit remaining</span>
+              <strong>{formatUsd(visible.finance.creditRemainingCents, true)}</strong>
+              <small>{formatUsd(visible.finance.creditLimitCents, true)} facility</small>
+            </div>
+            <div>
+              <span>Advance liability</span>
+              <strong>
+                {formatUsd(visible.finance.contractAdvanceLiabilityCents, true)}
+              </strong>
+              <small>
+                {visible.earlyPaymentObligation
+                  ? `${visible.earlyPaymentObligation.remainingKt.toFixed(1)} kt due W${visible.earlyPaymentObligation.dueTurn}`
+                  : "No active cargo obligation"}
+              </small>
+            </div>
+            <div>
+              <span>Arrears</span>
+              <strong>{formatUsd(visible.finance.arrearsCents, true)}</strong>
+              <small>
+                Penalties paid/accrued{" "}
+                {formatUsd(visible.finance.contractualPenaltiesCents, true)}
+              </small>
+            </div>
+          </div>
         </Panel>
 
         <Panel title="Draft direct commitments" subtitle="Before operational consequences">
@@ -976,11 +1162,29 @@ export function FinanceScreen(props: ScreenProps) {
               </span>
               <span className="commitment-row__copy">
                 <strong>Signed import orders</strong>
-                <span>{decision.imports.length} new contracts</span>
+                <span>
+                  {decision.imports.length} new contracts ·{" "}
+                  {formatUsd(importCostCents(decision.imports), true)}
+                </span>
               </span>
               <StatusLabel tone={decision.imports.length ? "watch" : "info"}>
                 {decision.imports.length ? "Drafted" : "None"}
               </StatusLabel>
+            </div>
+            <div className="commitment-row">
+              <span className="commitment-row__turn">
+                W<strong>{decision.forTurn}</strong>
+              </span>
+              <span className="commitment-row__copy">
+                <strong>Port repair programme</strong>
+                <span>{decision.repairIntensity} intensity</span>
+              </span>
+              <strong>
+                {formatUsd(
+                  REPAIR_ASSUMPTIONS[decision.repairIntensity].costCents,
+                  true,
+                )}
+              </strong>
             </div>
           </div>
         </Panel>
@@ -1043,7 +1247,7 @@ export function FinanceScreen(props: ScreenProps) {
 
 export function RepairScreen(props: ScreenProps) {
   const { visible, decision, onOpenBook, onOpenTrace } = props;
-  const implementationTeamsTotal = 6;
+  const implementationTeamsTotal = visible.operations.implementationTeamsTotal;
   const claimed =
     implementationTeamsTotal - visible.headline.implementationTeamsAvailable;
   const engineeringReport = [...visible.reports]
@@ -1113,13 +1317,16 @@ export function RepairScreen(props: ScreenProps) {
           </div>
         </Panel>
 
-        <Panel title="Implementation teams" subtitle="Shared across emergency initiatives">
-          <div className="team-grid" aria-label={`${claimed} of ${implementationTeamsTotal} teams committed`}>
+        <Panel
+          title="Implementation teams"
+          subtitle={`${visible.operations.implementationTeamsInFlight} currently in flight; work due before W${decision.forTurn} is released first`}
+        >
+          <div className="team-grid" aria-label={`${claimed} of ${implementationTeamsTotal} teams unavailable for the next package`}>
             {Array.from({ length: implementationTeamsTotal }, (_, index) => (
               <div className={`team-slot ${index < claimed ? "team-slot--claimed" : ""}`} key={index}>
                 <span>
                   <Icon name={index < claimed ? "repair" : "briefcase"} />
-                  <span>{index < claimed ? "Committed" : "Available"}</span>
+                  <span>{index < claimed ? "Reserved" : "Available"}</span>
                 </span>
               </div>
             ))}
@@ -1127,7 +1334,7 @@ export function RepairScreen(props: ScreenProps) {
           <div className="capacity-summary">
             <div>
               <div className="capacity-summary__copy">
-                <span>Ongoing commitments</span>
+                <span>Unavailable for next package</span>
                 <strong>
                   {claimed} / {implementationTeamsTotal} teams
                 </strong>
@@ -1135,7 +1342,7 @@ export function RepairScreen(props: ScreenProps) {
               <Meter
                 value={claimed}
                 max={implementationTeamsTotal}
-                label="Implementation teams committed"
+                label="Implementation teams unavailable for next package"
                 tone={claimed >= implementationTeamsTotal ? "red" : "teal"}
               />
             </div>
@@ -1386,7 +1593,7 @@ export function TimelineScreen(props: ScreenProps) {
 
       <Panel
         title="Latest binding constraints"
-        subtitle="The realized flow records the constraint that actually bound it"
+        subtitle="Demand is the flow waiting or required; the effective cap is the resource limit, not necessarily the original slider"
         flush
         className="panel--raised"
       >
@@ -1396,9 +1603,9 @@ export function TimelineScreen(props: ScreenProps) {
               <thead>
                 <tr>
                   <th scope="col">System</th>
-                  <th scope="col">Requested</th>
-                  <th scope="col">Available</th>
-                  <th scope="col">Realized</th>
+                  <th scope="col">Demand / requirement</th>
+                  <th scope="col">Effective availability / cap</th>
+                  <th scope="col">Realized / supplied</th>
                   <th scope="col">Binding constraint</th>
                 </tr>
               </thead>

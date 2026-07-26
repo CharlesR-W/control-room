@@ -29,6 +29,90 @@ try {
   await page.getByRole("button", { name: /Enter the control room/i }).click();
   await page.getByRole("heading", { name: /National supply position/i }).waitFor();
 
+  await page.getByRole("button", { name: "Mechanics", exact: true }).click();
+  const rulebook = page.getByRole("dialog", { name: "Mechanics rulebook" });
+  await rulebook.waitFor();
+  await rulebook
+    .getByRole("heading", { name: /A request is a ceiling/i })
+    .waitFor();
+  await rulebook.getByText(/berth time expires/i).waitFor();
+  const activeRulebookControl = await page.evaluate(
+    () => document.activeElement?.getAttribute("aria-label"),
+  );
+  if (activeRulebookControl !== "Close mechanics rulebook") {
+    failures.push(
+      `accessibility: rulebook did not move focus to Close (${activeRulebookControl})`,
+    );
+  }
+  await rulebook.screenshot({ path: "/tmp/control-room-rulebook.png" });
+  await rulebook
+    .getByRole("button", { name: /Close mechanics rulebook/i })
+    .click();
+  const restoredControl = await page.evaluate(
+    () => document.activeElement?.textContent?.trim(),
+  );
+  if (restoredControl !== "Mechanics") {
+    failures.push(
+      `accessibility: rulebook did not restore trigger focus (${restoredControl})`,
+    );
+  }
+
+  const decisionBook = page.getByRole("complementary", {
+    name: "Decision Book",
+  });
+  await decisionBook
+    .getByRole("button", { name: /Port scheduling/i })
+    .click();
+  await decisionBook
+    .getByRole("slider", { name: /Grain imports/i })
+    .fill("6");
+  const grainAvailability = decisionBook.getByRole("group", {
+    name: "Grain imports availability",
+  });
+  const grainAvailabilityValues = await grainAvailability
+    .locator("dd")
+    .allTextContents();
+  if (
+    JSON.stringify(grainAvailabilityValues) !==
+    JSON.stringify(["6.0 kt", "5.0 kt", "5.0 kt", "5.0 kt"])
+  ) {
+    failures.push(
+      `mechanics: unexpected opening grain availability ${JSON.stringify(grainAvailabilityValues)}`,
+    );
+  }
+  await decisionBook.screenshot({
+    path: "/tmp/control-room-decision-book.png",
+  });
+  const decisionBookLayout = await decisionBook.evaluate((element) => ({
+    clientWidth: element.clientWidth,
+    scrollWidth: element.scrollWidth,
+  }));
+  if (decisionBookLayout.scrollWidth > decisionBookLayout.clientWidth + 1) {
+    failures.push(
+      `decision book: horizontal overflow ${decisionBookLayout.scrollWidth}px > ${decisionBookLayout.clientWidth}px`,
+    );
+  }
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "Open run menu" }).click();
+  await page
+    .getByRole("menuitem", { name: /Open mechanics rulebook/i })
+    .click();
+  await page.getByRole("dialog", { name: "Mechanics rulebook" }).waitFor();
+  const mobileRulebookLayout = await page.evaluate(() => ({
+    viewport: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
+  if (mobileRulebookLayout.scrollWidth > mobileRulebookLayout.viewport + 1) {
+    failures.push(
+      `mechanics mobile: horizontal overflow ${mobileRulebookLayout.scrollWidth}px > ${mobileRulebookLayout.viewport}px`,
+    );
+  }
+  await page
+    .getByRole("button", { name: /Close mechanics rulebook/i })
+    .click();
+  await page.setViewportSize({ width: 1440, height: 960 });
+
   for (let turn = 1; turn <= 12; turn += 1) {
     await page.getByLabel(/Grain coverage next week/i).fill("3.0");
     await page.getByLabel(/FX next week/i).fill("25.0");
@@ -101,7 +185,7 @@ try {
   }
 
   process.stdout.write(
-    `Browser smoke passed: 12 turns, reload/replay, AAR, responsive layout, and branch persistence.\nScreenshot: /tmp/control-room-aar.png\n`,
+    `Browser smoke passed: mechanics, quantity bounds, mobile layout, 12 turns, reload/replay, AAR, responsive layout, and branch persistence.\nScreenshots: /tmp/control-room-rulebook.png, /tmp/control-room-decision-book.png, /tmp/control-room-aar.png\n`,
   );
 } finally {
   await browser.close();
