@@ -2,6 +2,8 @@
 
 Control Room is a browser-local serious-systems simulation about making consequential decisions in a world of delays, queues, bottlenecks, accounting constraints, and incomplete reports.
 
+[Play Control Room in your browser](https://selene-control-room.karolvsavgvstvs.chatgpt.site).
+
 The current release is a **playable vertical slice**, not the full platform described by the product specification. It implements one fictional scenario:
 
 > **The Narrows: Twelve Weeks to Stabilize Selene**
@@ -67,7 +69,8 @@ Doing nothing or holding a policy steady can be a legitimate choice. An import o
 ### Browser interface
 
 - A desktop-first control-room shell with situation, supply, transport, finance, repair, reports, and timeline views.
-- A persistent Decision Book with resource previews and validation feedback.
+- A persistent Decision Book with requested/confirmed/possible flow bounds, measured source stocks, liabilities, timing, resource previews, and validation feedback.
+- An in-game mechanics rulebook that declares resolution order, capping and non-reassignment rules, costs, lags, fuel priority, and the boundary between measured, reported, windowed, and hidden information.
 - A stylized, data-driven SVG logistics map; stock/flow, capacity, trend, and binding-constraint views.
 - Keyboard-visible focus styles, textual chart/map descriptions, and reduced-motion support.
 

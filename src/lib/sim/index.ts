@@ -13,6 +13,7 @@ export {
   copperReceiptCents,
   createDefaultDecision,
   importCostCents,
+  ongoingAdminClaimsForNextTurn,
   portCapacityForRepair,
   reportedTotalGrainKt,
   totalWeeklyDemandKt,
@@ -20,6 +21,7 @@ export {
   validateDecision,
 } from "./model.ts";
 export { DecisionValidationError, stepWorld } from "./engine.ts";
+export { visibleCargoAvailability } from "./decisionSupport.ts";
 export {
   branchRun,
   createInitialRun,

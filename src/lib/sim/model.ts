@@ -541,7 +541,7 @@ function malformedDecisionResult(state: WorldState): ValidationResult {
   };
 }
 
-function ongoingAdminClaims(state: WorldState): number {
+export function ongoingAdminClaimsForNextTurn(state: WorldState): number {
   const nextTurn = state.turn + 1;
   const audits = state.observations.pendingAudits.filter(
     (audit) => audit.completionTurn > nextTurn,
@@ -895,7 +895,7 @@ export function validateDecision(
     }
   }
 
-  const ongoing = ongoingAdminClaims(state);
+  const ongoing = ongoingAdminClaimsForNextTurn(state);
   const claimed = decisionAdminClaims(state, decision);
   if (ongoing + claimed > state.implementationTeamsTotal) {
     errors.push(
