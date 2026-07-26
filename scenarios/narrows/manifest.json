@@ -1,0 +1,96 @@
+{
+  "schemaVersion": "0.1.0",
+  "id": "narrows-supply-crisis",
+  "version": "0.1.0",
+  "engineVersion": "0.1.0",
+  "contentHash": "narrows-v0.1.0-explicit-assumptions-1",
+  "title": "The Narrows: Twelve Weeks to Stabilize Selene",
+  "shortTitle": "The Narrows",
+  "status": "playable-vertical-slice",
+  "scenarioType": "systems-management",
+  "fidelity": "fictional-analytic",
+  "summary": "A twelve-week supply-crisis exercise coupling food, fuel, transport, port repair, copper exports, and foreign-exchange reserves.",
+  "role": {
+    "title": "Minister for National Supply",
+    "institution": "Emergency Economic Coordination Council",
+    "jurisdiction": "Republic of Selene"
+  },
+  "clock": {
+    "startDate": "1978-09-04",
+    "stepUnit": "week",
+    "turns": 12,
+    "decisionCadence": 1
+  },
+  "modes": [
+    {
+      "id": "guided",
+      "description": "Action families unlock in stages and major event timing is fixed."
+    },
+    {
+      "id": "professional",
+      "description": "All action families are available and declared event parameters vary by seed."
+    },
+    {
+      "id": "sandbox",
+      "description": "All action families are available for unconstrained model exploration."
+    }
+  ],
+  "modules": [
+    "stocks-and-flows",
+    "delayed-shipments",
+    "capacity-allocation",
+    "regional-network",
+    "financial-ledger",
+    "repair-project",
+    "partial-observation",
+    "causal-trace",
+    "event-sourced-runs"
+  ],
+  "primaryLearningObjectives": [
+    {
+      "id": "stock-flow",
+      "label": "Distinguish an inventory level from its net rate of change."
+    },
+    {
+      "id": "pipeline-delay",
+      "label": "Order against lead time rather than waiting for a visible shortage."
+    },
+    {
+      "id": "moving-bottlenecks",
+      "label": "Identify how the binding constraint moves across port, rail, fuel, finance, and implementation capacity."
+    },
+    {
+      "id": "coupled-constraints",
+      "label": "Reason about the coupling between physical resources and foreign exchange."
+    },
+    {
+      "id": "implementation-capacity",
+      "label": "Treat administrative teams and policy churn as real constraints."
+    },
+    {
+      "id": "information-value",
+      "label": "Request imperfect information early enough for it to change a decision."
+    }
+  ],
+  "runtime": {
+    "modelKind": "typed-typescript-plugin",
+    "modelEntry": "../../src/lib/sim/index.ts",
+    "packageIntegration": "metadata-skeleton",
+    "authority": "The TypeScript runtime is authoritative in version 0.1.0; these package files document the intended future loader contract."
+  },
+  "contentFiles": {
+    "briefing": "briefing.md",
+    "actions": "actions.json",
+    "objectives": "objectives.json",
+    "observations": "observations.json",
+    "events": "events.json",
+    "parameterRegister": "parameter-register.csv",
+    "modelCard": "../../docs/model-card.md"
+  },
+  "dataPolicy": {
+    "setting": "fictional",
+    "historicalClaims": false,
+    "parameterBasis": "Assumed and design-tuned values; not empirical estimates.",
+    "predictiveUse": false
+  }
+}

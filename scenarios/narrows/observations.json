@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "0.1.0",
+  "scenarioId": "narrows-supply-crisis",
+  "informationPolicy": {
+    "layers": [
+      "true-state",
+      "reported-state",
+      "player-belief"
+    ],
+    "rule": "The player-facing snapshot exposes reports and declared operational data, not every field in the true world state.",
+    "dateSemantics": [
+      "eventTurn",
+      "asOfTurn",
+      "publishedTurn"
+    ]
+  },
+  "observations": [
+    {
+      "id": "operations-summary",
+      "label": "Weekly operations summary",
+      "kind": "operations",
+      "source": "Emergency Operations Secretariat",
+      "cadence": "weekly",
+      "publicationLagTurns": 0,
+      "status": "final",
+      "visibility": "player",
+      "delivery": "dashboard-snapshot",
+      "fields": [
+        "dieselKt",
+        "fxCents",
+        "portCapacityKt",
+        "repairProgressPct",
+        "shipments",
+        "bindingConstraints"
+      ],
+      "uncertainty": "Operational and ledger values are treated as administratively observable in this vertical slice.",
+      "implementationNote": "This is the live VisibleSnapshot projection, not a persisted ObservationReport."
+    },
+    {
+      "id": "regional-stock-return",
+      "label": "Regional grain stock return",
+      "kind": "regional-stock",
+      "source": "Regional Supply Offices",
+      "cadence": "weekly",
+      "publicationLagTurns": 1,
+      "status": "preliminary",
+      "visibility": "player",
+      "fields": [
+        "reportedGrainKt",
+        "reportedCoverageWeeks",
+        "activeRation",
+        "serviceStatus"
+      ],
+      "noiseModel": "A seed-specific multiplicative reporting bias is fixed for each region.",
+      "revisionModel": "A designed event revises one region's return during the run.",
+      "provenance": [
+        "scenario-variant.regularReportBias",
+        "truthHistory.regionalGrainKt"
+      ]
+    },
+    {
+      "id": "crop-estimate",
+      "label": "Domestic crop estimate",
+      "kind": "crop",
+      "source": "Agricultural Statistics Office",
+      "cadence": "event-driven",
+      "publicationLagTurns": 1,
+      "status": "preliminary",
+      "visibility": "player",
+      "fields": [
+        "reportedDomesticOutputKt"
+      ],
+      "revisionModel": "At the declared crop-revision turn, the estimate is replaced using the seeded crop multiplier.",
+      "provenance": [
+        "scenario-variant.cropRevisionTurn",
+        "scenario-variant.cropMultiplier"
+      ]
+    },
+    {
+      "id": "port-engineering-assessment",
+      "label": "Port engineering assessment",
+      "kind": "port-engineering",
+      "source": "Main Port Engineering Directorate",
+      "cadence": "event-driven",
+      "publicationLagTurns": 1,
+      "status": "preliminary",
+      "visibility": "player",
+      "fields": [
+        "portCapacityKt",
+        "repairProgressPct",
+        "knownPortRepairEfficiency"
+      ],
+      "uncertainty": "The initial assessment does not reveal the seed-specific repair-efficiency factor.",
+      "revisionModel": "A port-damage audit can disclose the repair-efficiency assessment after its completion delay."
+    },
+    {
+      "id": "targeted-audit",
+      "label": "Targeted audit result",
+      "kind": "audit",
+      "source": "Ministerial Audit Team",
+      "cadence": "on-request",
+      "publicationLagTurns": 1,
+      "status": "final",
+      "visibility": "player",
+      "requestOptions": [
+        "capital-stock",
+        "north-stock",
+        "interior-stock",
+        "crop",
+        "port-damage"
+      ],
+      "uncertainty": "An audit narrows one defined uncertainty; it does not reveal unrelated hidden state."
+    }
+  ]
+}

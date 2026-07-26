@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "0.1.0",
+  "scenarioId": "narrows-supply-crisis",
+  "timingConvention": "Turn values are zero-based runtime turn indices. Guided mode uses fixed values; professional and sandbox modes derive declared variants from the run seed.",
+  "events": [
+    {
+      "id": "early-payment-offer",
+      "type": "early-payment-offer",
+      "label": "Copper buyer early-payment offer",
+      "trigger": "scheduled",
+      "guidedTurn": 4,
+      "professionalTurnRange": [
+        3,
+        5
+      ],
+      "visibility": "player",
+      "severity": "info",
+      "mechanism": "Makes a USD 2.6 million advance available in exchange for a 5 kt later delivery obligation."
+    },
+    {
+      "id": "regional-stock-revision",
+      "type": "regional-stock-revision",
+      "label": "Regional stock return revised",
+      "trigger": "scheduled",
+      "guidedTurn": 6,
+      "professionalTurnRange": [
+        4,
+        6
+      ],
+      "guidedRegion": "north",
+      "professionalRegionOptions": [
+        "capital",
+        "north",
+        "interior"
+      ],
+      "visibility": "player",
+      "severity": "warning",
+      "mechanism": "Replaces a preliminary regional stock report without changing the underlying stock."
+    },
+    {
+      "id": "crop-revision",
+      "type": "crop-revision",
+      "label": "Domestic crop estimate revised",
+      "trigger": "scheduled",
+      "guidedTurn": 7,
+      "professionalTurnRange": [
+        5,
+        7
+      ],
+      "guidedMultiplier": 0.92,
+      "professionalMultiplierOptions": [
+        0.82,
+        0.92,
+        1.08,
+        1.16
+      ],
+      "visibility": "player",
+      "severity": "warning",
+      "mechanism": "Publishes a revised estimate of the run's already-seeded modeled weekly domestic grain output."
+    },
+    {
+      "id": "weather-warning",
+      "type": "weather-warning",
+      "label": "Severe-weather port warning",
+      "trigger": "relative-to-port-closure",
+      "offsetTurns": -1,
+      "visibility": "player",
+      "severity": "warning",
+      "mechanism": "Announces the closure one turn in advance so the shock tests planning rather than surprise alone."
+    },
+    {
+      "id": "port-closure",
+      "type": "port-closure",
+      "label": "One-week port closure",
+      "trigger": "scheduled",
+      "guidedTurn": 8,
+      "professionalTurnRange": [
+        7,
+        9
+      ],
+      "durationTurns": 1,
+      "visibility": "player",
+      "severity": "critical",
+      "mechanism": "Removes weekly port throughput and leaves affected cargo in its queue."
+    },
+    {
+      "id": "offer-expired",
+      "type": "offer-expired",
+      "label": "Early-payment offer expired",
+      "trigger": "state",
+      "condition": "The offer's availability window closes without acceptance.",
+      "visibility": "player",
+      "severity": "info",
+      "mechanism": "Changes offer status only."
+    },
+    {
+      "id": "contract-penalty",
+      "type": "contract-penalty",
+      "label": "Copper delivery penalty",
+      "trigger": "state",
+      "condition": "An accepted early-payment delivery obligation remains unmet at its due turn.",
+      "visibility": "player",
+      "severity": "critical",
+      "mechanism": "Settles an explicit USD 0.8 million penalty in the ledger."
+    }
+  ]
+}

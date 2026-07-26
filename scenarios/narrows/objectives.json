@@ -1,0 +1,125 @@
+{
+  "schemaVersion": "0.1.0",
+  "scenarioId": "narrows-supply-crisis",
+  "evaluationRule": "Objectives are reported as a priority-ordered vector. The interface does not collapse them into one public score.",
+  "objectives": [
+    {
+      "id": "food-service",
+      "label": "Avoid severe regional food shortfalls",
+      "priority": 1,
+      "hardConstraint": true,
+      "metric": "metrics.foodShortfallKt",
+      "unit": "kt cumulative shortfall",
+      "direction": "minimize",
+      "target": 0,
+      "atRiskAbove": 0.25,
+      "breachedAbove": 2,
+      "interpretation": "National inventory can remain positive while a regional depot fails; distribution outcomes therefore take precedence over the national total."
+    },
+    {
+      "id": "diesel-service",
+      "label": "Preserve essential diesel services",
+      "priority": 2,
+      "hardConstraint": true,
+      "metric": "metrics.essentialDieselServiceLossKt",
+      "unit": "kt unmet",
+      "direction": "minimize",
+      "target": 0,
+      "atRiskAbove": 0,
+      "breachedAbove": 0.5,
+      "interpretation": "Trucking, rail movements, mining, and repair compete with a protected essential-services requirement."
+    },
+    {
+      "id": "fx-floor",
+      "label": "Keep foreign-exchange reserves above the emergency floor",
+      "priority": 3,
+      "hardConstraint": true,
+      "metric": "metrics.minimumFxCents",
+      "unit": "USD cents",
+      "direction": "at-or-above",
+      "threshold": 1000000000,
+      "displayThreshold": "USD 10 million",
+      "interpretation": "Import commitments and repairs draw reserves while completed copper exports replenish them."
+    },
+    {
+      "id": "port-repair",
+      "label": "Restore port throughput",
+      "priority": 4,
+      "hardConstraint": false,
+      "metric": "state.repairProgressPct",
+      "unit": "percent",
+      "direction": "maximize",
+      "target": 80,
+      "capacityThresholds": [
+        {
+          "repairProgressPct": 40,
+          "portCapacityKt": 16
+        },
+        {
+          "repairProgressPct": 80,
+          "portCapacityKt": 20
+        }
+      ],
+      "interpretation": "Repair consumes scarce resources now but raises the later feasible throughput envelope."
+    },
+    {
+      "id": "hardship",
+      "label": "Limit hardship and contractual damage",
+      "priority": 5,
+      "hardConstraint": false,
+      "metrics": [
+        "metrics.hardshipPoints",
+        "finance.contractualPenaltiesCents",
+        "finance.creditPrincipalCents",
+        "finance.contractAdvanceLiabilityCents",
+        "finance.arrearsCents"
+      ],
+      "direction": "minimize",
+      "runtimeBurdenFormula": "hardshipPoints + contractualPenaltiesCents / 100000000 + creditPrincipalCents / 200000000 + contractAdvanceLiabilityCents / 100000000 + arrearsCents / 100000000",
+      "interpretation": "Ration severity, shortages, and unmet copper obligations remain visible as separate costs."
+    },
+    {
+      "id": "resilience",
+      "label": "Finish with a defensible reserve position",
+      "priority": 6,
+      "hardConstraint": false,
+      "metric": "min(trueTotalGrainKt / totalWeeklyDemandKt, dieselKt / 3)",
+      "unit": "minimum weeks coverage",
+      "direction": "maximize",
+      "interpretation": "The final state should preserve useful food, fuel, financial, and port capacity rather than merely survive the last displayed week."
+    }
+  ],
+  "processMeasures": [
+    {
+      "id": "forecast-error",
+      "label": "Forecast error",
+      "purpose": "Compare the player's stated expectations with observed outcomes."
+    },
+    {
+      "id": "policy-churn",
+      "label": "Policy churn",
+      "runtimeMetric": "metrics.policyChurn"
+    },
+    {
+      "id": "emergency-actions",
+      "label": "Emergency-action frequency",
+      "runtimeMetric": "metrics.emergencyActionCount"
+    },
+    {
+      "id": "implementation-overload",
+      "label": "Turns at full implementation capacity",
+      "runtimeMetric": "metrics.implementationOverloadTurns",
+      "interpretation": "Counts turns in which all implementation-team slots were committed; validation prevents actual over-allocation."
+    },
+    {
+      "id": "information-use",
+      "label": "Information actions used",
+      "runtimeMetric": "metrics.informationActionsUsed"
+    },
+    {
+      "id": "binding-constraints",
+      "label": "Time spent at binding constraints",
+      "runtimeMetric": "history.bindingConstraints"
+    }
+  ]
+}

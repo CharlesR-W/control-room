@@ -1,0 +1,40 @@
+{
+  "name": "control-room-simulation",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A deterministic, browser-local serious systems simulation.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CharlesR-W/control-room.git"
+  },
+  "engines": {
+    "node": ">=20.9"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "sim": "node src/cli.ts",
+    "test": "node --test src/lib/sim/engine.test.ts",
+    "test:e2e": "node scripts/e2e-smoke.mjs",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm test && npm run build"
+  },
+  "dependencies": {
+    "next": "16.2.12",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.1",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "playwright-core": "1.62.0",
+    "typescript": "5.9.3"
+  },
+  "overrides": {
+    "postcss": "8.5.18",
+    "sharp": "0.35.3"
+  }
+}

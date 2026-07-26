@@ -1,0 +1,279 @@
+{
+  "schemaVersion": "0.1.0",
+  "scenarioId": "narrows-supply-crisis",
+  "decisionPackageRule": "The player drafts one package for the next weekly step. The package is validated as a whole before commitment.",
+  "actions": [
+    {
+      "id": "imports",
+      "label": "Import procurement",
+      "decisionField": "imports",
+      "guidedUnlockTurnIndex": 0,
+      "parameters": [
+        {
+          "id": "cargo",
+          "type": "enum",
+          "options": [
+            "grain",
+            "diesel"
+          ]
+        },
+        {
+          "id": "supplier",
+          "type": "enum",
+          "options": [
+            "near-premium",
+            "standard",
+            "distant-discount"
+          ]
+        },
+        {
+          "id": "quantityKt",
+          "type": "number",
+          "unit": "kt",
+          "minimum": 0
+        }
+      ],
+      "lifecycle": [
+        "committed",
+        "queued",
+        "implementing",
+        "completed"
+      ],
+      "directEffectPreview": [
+        "Reserves foreign exchange at the supplier-specific price.",
+        "Creates a shipment with a supplier-specific lead time.",
+        "Adds cargo that must later compete for port capacity."
+      ]
+    },
+    {
+      "id": "portSchedule",
+      "label": "Port scheduling",
+      "decisionField": "portSchedule",
+      "guidedUnlockTurnIndex": 2,
+      "parameters": [
+        {
+          "id": "grainImportsKt",
+          "type": "number",
+          "unit": "kt/week",
+          "minimum": 0
+        },
+        {
+          "id": "dieselImportsKt",
+          "type": "number",
+          "unit": "kt/week",
+          "minimum": 0
+        },
+        {
+          "id": "copperExportsKt",
+          "type": "number",
+          "unit": "kt/week",
+          "minimum": 0
+        },
+        {
+          "id": "repairEquipmentKt",
+          "type": "number",
+          "unit": "kt/week",
+          "minimum": 0
+        }
+      ],
+      "validationRules": [
+        "The requested categories share the current weekly port-throughput ceiling.",
+        "Unloading cannot exceed cargo that has arrived and is waiting at the port."
+      ],
+      "directEffectPreview": [
+        "Allocates a scarce weekly throughput envelope.",
+        "Determines which arrived imports become usable and which copper can be exported."
+      ]
+    },
+    {
+      "id": "railAndTruck",
+      "label": "Rail and truck priority",
+      "decisionField": "railAndTruck",
+      "guidedUnlockTurnIndex": 4,
+      "parameters": [
+        {
+          "id": "railGrainKt",
+          "type": "number",
+          "unit": "kt/week",
+          "minimum": 0
+        },
+        {
+          "id": "railCopperKt",
+          "type": "number",
+          "unit": "kt/week",
+          "minimum": 0
+        },
+        {
+          "id": "grainSharesPct",
+          "type": "percentage-record",
+          "keys": [
+            "capital",
+            "north",
+            "interior"
+          ],
+          "sum": 100
+        },
+        {
+          "id": "truckRegion",
+          "type": "enum",
+          "options": [
+            "none",
+            "capital",
+            "north",
+            "interior"
+          ]
+        },
+        {
+          "id": "truckGrainKt",
+          "type": "number",
+          "unit": "kt/week",
+          "minimum": 0,
+          "maximum": 3
+        }
+      ],
+      "validationRules": [
+        "Rail grain and copper claims share the current rail-capacity ceiling.",
+        "Emergency trucking requires a destination and consumes diesel.",
+        "Regional grain shares must total 100 percent."
+      ],
+      "directEffectPreview": [
+        "Allocates rail capacity between food distribution and copper movement.",
+        "Can substitute truck capacity for rail at a higher diesel cost."
+      ]
+    },
+    {
+      "id": "rationPolicy",
+      "label": "Reserve and ration policy",
+      "decisionField": "rationPolicy",
+      "guidedUnlockTurnIndex": 4,
+      "parameters": [
+        {
+          "id": "capital",
+          "type": "enum",
+          "options": [
+            "none",
+            "moderate",
+            "severe"
+          ]
+        },
+        {
+          "id": "north",
+          "type": "enum",
+          "options": [
+            "none",
+            "moderate",
+            "severe"
+          ]
+        },
+        {
+          "id": "interior",
+          "type": "enum",
+          "options": [
+            "none",
+            "moderate",
+            "severe"
+          ]
+        }
+      ],
+      "directEffectPreview": [
+        "Schedules a regional demand reduction after an implementation delay.",
+        "Uses administrative capacity and adds hardship when restrictions are active."
+      ]
+    },
+    {
+      "id": "copperPlan",
+      "label": "Copper operating plan",
+      "decisionField": "copperPlan",
+      "guidedUnlockTurnIndex": 2,
+      "parameters": [
+        {
+          "id": "mineTargetKt",
+          "type": "number",
+          "unit": "kt/week",
+          "minimum": 0
+        },
+        {
+          "id": "acceptEarlyPayment",
+          "type": "boolean"
+        }
+      ],
+      "directEffectPreview": [
+        "Sets a production target that claims diesel and rail capacity.",
+        "Copper exported through the port earns foreign exchange.",
+        "Accepting early payment creates a later delivery obligation and penalty risk."
+      ]
+    },
+    {
+      "id": "repairIntensity",
+      "label": "Port repair intensity",
+      "decisionField": "repairIntensity",
+      "guidedUnlockTurnIndex": 6,
+      "parameters": [
+        {
+          "id": "level",
+          "type": "enum",
+          "options": [
+            "none",
+            "normal",
+            "accelerated",
+            "emergency"
+          ]
+        }
+      ],
+      "directEffectPreview": [
+        "Claims foreign exchange, implementation teams, repair equipment, and diesel.",
+        "Progress depends on the scenario's seeded repair-efficiency parameter.",
+        "Crossing repair thresholds restores port throughput."
+      ]
+    },
+    {
+      "id": "audit",
+      "label": "Information and audit",
+      "decisionField": "audit",
+      "guidedUnlockTurnIndex": 6,
+      "parameters": [
+        {
+          "id": "kind",
+          "type": "enum",
+          "options": [
+            "none",
+            "capital-stock",
+            "north-stock",
+            "interior-stock",
+            "crop",
+            "port-damage"
+          ]
+        }
+      ],
+      "directEffectPreview": [
+        "Queues one targeted information request.",
+        "Produces a dated report after a delay; it does not alter the underlying state."
+      ]
+    },
+    {
+      "id": "emergencyCredit",
+      "label": "Emergency finance",
+      "decisionField": "emergencyCreditUsdM",
+      "guidedUnlockTurnIndex": 6,
+      "parameters": [
+        {
+          "id": "amountUsdM",
+          "type": "number",
+          "unit": "USD million",
+          "minimum": 0,
+          "maximum": 4,
+          "increment": 0.5
+        }
+      ],
+      "validationRules": [
+        "A single weekly draw cannot exceed USD 4 million.",
+        "Cumulative principal cannot exceed the USD 12 million credit-line limit."
+      ],
+      "directEffectPreview": [
+        "Raises immediately available foreign exchange.",
+        "Creates principal and weekly interest obligations.",
+        "Counts as an emergency action in process evaluation."
+      ]
+    }
+  ]
+}
