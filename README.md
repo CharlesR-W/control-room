@@ -4,11 +4,19 @@ Control Room is a browser-local serious-systems simulation about making conseque
 
 [Play Control Room in your browser](https://selene-control-room.karolvsavgvstvs.chatgpt.site).
 
-The current release is a **playable vertical slice**, not the full platform described by the product specification. It implements one fictional scenario:
+The current release is a **playable scenario library**, not the full platform described by the product specification. It includes the original fictional vertical slice plus five design-stage historical and fictional-analytic models:
 
 > **The Narrows: Twelve Weeks to Stabilize Selene**
 >
 > As Minister for National Supply, keep food and essential fuel moving after a cyclone damages the country’s only deep-water port. Imports, copper exports, repairs, and regional distribution compete for the same transport, foreign exchange, and implementation capacity.
+
+- **Controlled Materials, 1943** — allocate complementary materials across production programs while conversion, maintenance, WIP, and learning move the bottleneck.
+- **North Atlantic, 1942** — schedule convoys, escorts, ports, and repair cycles under keyed loss hazards and delayed reports.
+- **Apollo Integration, 1966** — a fictional-analytic program-integration model of dependencies, testing, defects, configuration, and workforce pressure.
+- **Sterling, 1931** — compare explicitly named behavioural variants around reserves, external balance, policy, and regime stress.
+- **Bottleneck Economy, 1981** — a deliberately bounded capstone model of an incipient two-channel allocation system under adjustment and stabilization.
+
+The historical scenarios are simplified teaching models with explicit claims boundaries. They explain their declared mechanisms; they do not establish what would have happened.
 
 ## What this is
 
@@ -29,7 +37,7 @@ See the [model card](docs/model-card.md) for the exact claim boundary and declar
 
 ## The playable loop
 
-Each turn represents one week:
+Each scenario uses its own declared clock. On each turn:
 
 1. **Inspect** the mandate, dated reports, stock coverage, incoming shipments, regional service, finance, and current constraints.
 2. **Diagnose** which resource is likely to bind next—not only which headline number is lowest now.
@@ -41,7 +49,7 @@ Each turn represents one week:
 
 Doing nothing or holding a policy steady can be a legitimate choice. An import order is not instant inventory: it must be funded, shipped, unloaded through the port, and distributed inland.
 
-## Implemented in this vertical slice
+## Implemented
 
 ### Simulation
 
@@ -68,17 +76,19 @@ Doing nothing or holding a policy steady can be a legitimate choice. An import o
 
 ### Browser interface
 
+- A six-scenario library with scenario-specific briefings, roles, fidelity labels, modes, and seeds.
+- A reusable scenario desk for the five new models with live metrics, mandate priorities, alerts, bounded action controls, direct commitments, deterministic autosave/replay, export, causal traces, and after-action reviews.
 - A desktop-first control-room shell with situation, supply, transport, finance, repair, reports, and timeline views.
 - A persistent Decision Book with requested/confirmed/possible flow bounds, measured source stocks, liabilities, timing, resource previews, and validation feedback.
 - An in-game mechanics rulebook that declares resolution order, capping and non-reassignment rules, costs, lags, fuel priority, and the boundary between measured, reported, windowed, and hidden information.
 - A stylized, data-driven SVG logistics map; stock/flow, capacity, trend, and binding-constraint views.
 - Keyboard-visible focus styles, textual chart/map descriptions, and reduced-motion support.
 
-The structured files under [`scenarios/narrows`](scenarios/narrows) are a documentation-forward package skeleton. In version 0.1.0, the TypeScript scenario model remains the runtime authority; a generic package loader and authoring CLI are future platform work.
+The structured files under [`scenarios/narrows`](scenarios/narrows) are a documentation-forward package skeleton. The TypeScript scenario models remain the runtime authority; a declarative package loader and authoring CLI are future platform work.
 
 ## Not implemented yet
 
-- A second materially different scenario or generalized scenario loader.
+- A declarative scenario-package loader; the current shared boundary is a typed model plugin registry.
 - A visual authoring studio, schema migrations, or scenario marketplace.
 - Instructor cohorts, accounts, cloud saves, multiplayer, or public leaderboards.
 - A calibrated historical model or empirical parameter set.
@@ -121,7 +131,7 @@ npm test
 npm run build
 ```
 
-The engine test suite covers deterministic initialization and replay, branch equivalence, save/load round trips, decision validation, bounds and conservation, ledger reconciliation, event and observation behavior, baseline policies, multi-seed smoke tests, and causal-trace completeness. A passing software suite verifies the implementation’s internal contract; it does not establish real-world validity or educational effectiveness.
+The test suite covers deterministic initialization and replay, branch equivalence, save/load round trips, decision validation, bounds and conservation, ledger reconciliation, event and observation behavior, baseline policies, cross-scenario 100-seed smoke tests, and causal-trace completeness. A passing software suite verifies the implementation’s internal contract; it does not establish real-world validity or educational effectiveness.
 
 The headless runner can execute reference policies or a Monte Carlo smoke without
 opening a browser:
@@ -170,8 +180,9 @@ Read [the architecture note](docs/architecture.md) for the step boundary, event-
 - [Events](scenarios/narrows/events.json)
 - [Parameter register](scenarios/narrows/parameter-register.csv)
 - [Model card](docs/model-card.md)
+- [Launch-scenario design suite](docs/scenarios/README.md)
 
-All scenario values are fictional assumptions or design-tuned parameters. The parameter register labels that provenance explicitly.
+Scenario values are fictional assumptions, sourced structural claims, or design-tuned parameters as labeled in the specifications. Numerical calibration and historical validation remain unfinished.
 
 ## Determinism, replay, and privacy
 

@@ -18,11 +18,13 @@ export function Landing({
   onBegin,
   onResume,
   onImport,
+  onLibrary,
 }: {
   savedRun: SavedRunSummary | null;
   onBegin: (mode: SimulationMode, seed: number) => void;
   onResume: () => void;
   onImport: (file: File) => void;
+  onLibrary?: () => void;
 }) {
   const [mode, setMode] = useState<SimulationMode>("guided");
   const [seed, setSeed] = useState<number>(PUBLIC_SEEDS[0]);
@@ -70,6 +72,11 @@ export function Landing({
 
       <aside className="landing__panel" aria-label="Scenario selection">
         <div className="scenario-card">
+          {onLibrary ? (
+            <button className="button button--ghost button--small" type="button" onClick={onLibrary}>
+              ← Scenario library
+            </button>
+          ) : null}
           <div className="scenario-card__meta">
             <p className="eyebrow">Scenario 01 / Supply &amp; logistics</p>
             <span className="scenario-card__stamp">Fictional analytic</span>
