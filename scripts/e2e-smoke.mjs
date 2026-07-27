@@ -31,24 +31,36 @@ try {
   }
 
   const genericScenarios = [
-    /Controlled Materials/i,
-    /North Atlantic/i,
-    /Apollo Integration/i,
-    /Sterling/i,
-    /Bottleneck Economy/i,
+    { name: /Controlled Materials/i, slug: "controlled-materials" },
+    { name: /North Atlantic/i, slug: "north-atlantic" },
+    { name: /Apollo Integration/i, slug: "apollo-integration" },
+    { name: /Sterling/i, slug: "sterling" },
+    { name: /Bottleneck Economy/i, slug: "bottleneck-economy" },
   ];
-  for (const [scenarioIndex, scenarioName] of genericScenarios.entries()) {
+  for (const scenario of genericScenarios) {
     const card = page.locator(".library-card").filter({
-      has: page.getByRole("heading", { name: scenarioName }),
+      has: page.getByRole("heading", { name: scenario.name }),
     });
     await card.getByRole("button", { name: /Open scenario/i }).click();
-    await page.getByRole("heading", { level: 1, name: scenarioName }).waitFor();
+    await page.getByRole("heading", { level: 1, name: scenario.name }).waitFor();
     await page.getByRole("button", { name: /Begin scenario/i }).click();
     await page.getByRole("button", { name: /Commit package/i }).click();
     await page.getByText("Last turn", { exact: true }).waitFor();
-    if (scenarioIndex === 0) {
-      await page.screenshot({ path: "/tmp/control-room-generic-desk.png", fullPage: true });
+    await page.screenshot({
+      path: `/tmp/control-room-theme-${scenario.slug}.png`,
+      fullPage: true,
+    });
+    await page.setViewportSize({ width: 390, height: 844 });
+    const themedMobileLayout = await page.evaluate(() => ({
+      viewport: document.documentElement.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+    }));
+    if (themedMobileLayout.scrollWidth > themedMobileLayout.viewport + 1) {
+      failures.push(
+        `${scenario.slug} mobile: horizontal overflow ${themedMobileLayout.scrollWidth}px > ${themedMobileLayout.viewport}px`,
+      );
     }
+    await page.setViewportSize({ width: 1440, height: 960 });
     await page.getByRole("button", { name: "Control Room", exact: true }).click();
     await page.getByRole("heading", { name: /History is a system/i }).waitFor();
   }
@@ -224,7 +236,7 @@ try {
   }
 
   process.stdout.write(
-    `Browser smoke passed: six-scenario library, five generic scenario turns, Narrows mechanics, quantity bounds, mobile layout, 12 turns, reload/replay, AAR, responsive layout, and branch persistence.\nScreenshots: /tmp/control-room-library.png, /tmp/control-room-generic-desk.png, /tmp/control-room-rulebook.png, /tmp/control-room-decision-book.png, /tmp/control-room-aar.png\n`,
+    `Browser smoke passed: six-scenario library, five themed scenario turns, Narrows mechanics, quantity bounds, mobile layout, 12 turns, reload/replay, AAR, responsive layout, and branch persistence.\nTheme screenshots: /tmp/control-room-theme-{controlled-materials,north-atlantic,apollo-integration,sterling,bottleneck-economy}.png\nOther screenshots: /tmp/control-room-library.png, /tmp/control-room-rulebook.png, /tmp/control-room-decision-book.png, /tmp/control-room-aar.png\n`,
   );
 } finally {
   await browser.close();

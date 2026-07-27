@@ -12,6 +12,7 @@ import type {
   ScenarioDecision,
   ScenarioRun,
 } from "@/lib/scenarios/types";
+import { ScenarioEmblem, themeLabelForScenario } from "./ScenarioTheme";
 
 type Phase = "briefing" | "playing" | "aar";
 
@@ -51,6 +52,7 @@ export function GenericScenarioGame({
   const [errors, setErrors] = useState<string[]>([]);
   const [showTrace, setShowTrace] = useState(false);
   const storageKey = `control-room:${model.metadata.id}:autosave:v1`;
+  const themeLabel = themeLabelForScenario(model.metadata.id);
 
   useEffect(() => {
     try {
@@ -129,12 +131,18 @@ export function GenericScenarioGame({
 
   if (phase === "briefing") {
     return (
-      <main className="scenario-briefing" style={{ "--scenario-accent": model.metadata.accent } as React.CSSProperties}>
+      <main
+        className="scenario-briefing"
+        data-scenario={model.metadata.id}
+        style={{ "--scenario-accent": model.metadata.accent } as React.CSSProperties}
+      >
+        <div className="scenario-theme-atmosphere" aria-hidden="true" />
         <button className="button button--ghost scenario-back" type="button" onClick={onExit}>
           ← Scenario library
         </button>
         <section className="scenario-briefing__body">
           <div>
+            <ScenarioEmblem scenarioId={model.metadata.id} />
             <p className="eyebrow">{model.metadata.period} · {model.metadata.fidelity}</p>
             <h1>{model.metadata.title}</h1>
             <p className="scenario-briefing__deck">{model.metadata.deck}</p>
@@ -181,8 +189,14 @@ export function GenericScenarioGame({
 
   if (phase === "aar") {
     return (
-      <main className="scenario-aar" style={{ "--scenario-accent": model.metadata.accent } as React.CSSProperties}>
+      <main
+        className="scenario-aar"
+        data-scenario={model.metadata.id}
+        style={{ "--scenario-accent": model.metadata.accent } as React.CSSProperties}
+      >
+        <div className="scenario-theme-atmosphere" aria-hidden="true" />
         <header>
+          <ScenarioEmblem scenarioId={model.metadata.id} />
           <p className="eyebrow">After-action review</p>
           <h1>{model.metadata.title}</h1>
           <p>{secureCount} of {view.objectives.length} mandate priorities secure at the end of the run.</p>
@@ -222,12 +236,20 @@ export function GenericScenarioGame({
   }
 
   return (
-    <main className="scenario-game" style={{ "--scenario-accent": model.metadata.accent } as React.CSSProperties}>
+    <main
+      className="scenario-game"
+      data-scenario={model.metadata.id}
+      style={{ "--scenario-accent": model.metadata.accent } as React.CSSProperties}
+    >
+      <div className="scenario-theme-atmosphere" aria-hidden="true" />
       <header className="scenario-game__topbar">
-        <button className="scenario-wordmark" type="button" onClick={onExit}><span /> Control Room</button>
+        <button className="scenario-wordmark" type="button" onClick={onExit}>
+          <ScenarioEmblem scenarioId={model.metadata.id} compact />
+          Control Room
+        </button>
         <div>
           <strong>{model.metadata.shortTitle}</strong>
-          <span>{model.metadata.role}</span>
+          <span>{themeLabel.label} · {model.metadata.role}</span>
         </div>
         <div>
           <strong>{view.dateLabel}</strong>
