@@ -2,9 +2,9 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Control Room — The Narrows",
+  title: "Control Room — Scenario Library",
   description:
-    "A deterministic systems-management simulation about delays, bottlenecks, and resilience.",
+    "Six deterministic, browser-local systems simulations about delays, bottlenecks, uncertainty, and resilience.",
 };
 
 export const viewport: Viewport = {
