@@ -1008,7 +1008,7 @@ function SimulationDesk({
   );
 }
 
-export function ControlRoomGame() {
+export function ControlRoomGame({ onExit }: { onExit?: () => void }) {
   const [phase, setPhase] = useState<AppPhase>("landing");
   const [run, setRun] = useState<SimulationRun | null>(null);
   const [savedRun, setSavedRun] = useState<SimulationRun | null>(null);
@@ -1178,6 +1178,7 @@ export function ControlRoomGame() {
         onBegin={beginRun}
         onResume={resume}
         onImport={importRun}
+        onLibrary={onExit}
       />
     );
   }
@@ -1192,6 +1193,7 @@ export function ControlRoomGame() {
           onBegin={beginRun}
           onResume={() => undefined}
           onImport={importRun}
+          onLibrary={onExit}
         />
         <Briefing
           mode={run.mode}

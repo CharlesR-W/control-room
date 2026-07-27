@@ -23,6 +23,40 @@ try {
   await page.evaluate(() => window.localStorage.clear());
   await page.reload({ waitUntil: "networkidle" });
 
+  await page.getByRole("heading", { name: /History is a system/i }).waitFor();
+  await page.screenshot({ path: "/tmp/control-room-library.png", fullPage: true });
+  const scenarioCards = page.locator(".library-card");
+  if ((await scenarioCards.count()) !== 6) {
+    failures.push(`library: expected 6 playable scenarios, found ${await scenarioCards.count()}`);
+  }
+
+  const genericScenarios = [
+    /Controlled Materials/i,
+    /North Atlantic/i,
+    /Apollo Integration/i,
+    /Sterling/i,
+    /Bottleneck Economy/i,
+  ];
+  for (const [scenarioIndex, scenarioName] of genericScenarios.entries()) {
+    const card = page.locator(".library-card").filter({
+      has: page.getByRole("heading", { name: scenarioName }),
+    });
+    await card.getByRole("button", { name: /Open scenario/i }).click();
+    await page.getByRole("heading", { level: 1, name: scenarioName }).waitFor();
+    await page.getByRole("button", { name: /Begin scenario/i }).click();
+    await page.getByRole("button", { name: /Commit package/i }).click();
+    await page.getByText("Last turn", { exact: true }).waitFor();
+    if (scenarioIndex === 0) {
+      await page.screenshot({ path: "/tmp/control-room-generic-desk.png", fullPage: true });
+    }
+    await page.getByRole("button", { name: "Control Room", exact: true }).click();
+    await page.getByRole("heading", { name: /History is a system/i }).waitFor();
+  }
+
+  const narrowsCard = page.locator(".library-card").filter({
+    has: page.getByRole("heading", { name: "The Narrows", exact: true }),
+  });
+  await narrowsCard.getByRole("button", { name: /Open scenario/i }).click();
   await page.getByRole("heading", { name: /Decisions have lead times/i }).waitFor();
   await page.getByRole("button", { name: "Professional" }).click();
   await page.getByRole("button", { name: /Begin briefing/i }).click();
@@ -135,6 +169,11 @@ try {
 
     if (turn === 2) {
       await page.reload({ waitUntil: "networkidle" });
+      await page.getByRole("heading", { name: /History is a system/i }).waitFor();
+      const savedNarrowsCard = page.locator(".library-card").filter({
+        has: page.getByRole("heading", { name: "The Narrows", exact: true }),
+      });
+      await savedNarrowsCard.getByRole("button", { name: /Open scenario/i }).click();
       await page.getByRole("button", { name: "Resume" }).waitFor();
       await page.getByRole("button", { name: "Resume" }).click();
       await page.getByText(/Autosave verified by deterministic replay/i).waitFor();
@@ -185,7 +224,7 @@ try {
   }
 
   process.stdout.write(
-    `Browser smoke passed: mechanics, quantity bounds, mobile layout, 12 turns, reload/replay, AAR, responsive layout, and branch persistence.\nScreenshots: /tmp/control-room-rulebook.png, /tmp/control-room-decision-book.png, /tmp/control-room-aar.png\n`,
+    `Browser smoke passed: six-scenario library, five generic scenario turns, Narrows mechanics, quantity bounds, mobile layout, 12 turns, reload/replay, AAR, responsive layout, and branch persistence.\nScreenshots: /tmp/control-room-library.png, /tmp/control-room-generic-desk.png, /tmp/control-room-rulebook.png, /tmp/control-room-decision-book.png, /tmp/control-room-aar.png\n`,
   );
 } finally {
   await browser.close();

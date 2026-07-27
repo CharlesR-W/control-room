@@ -1,5 +1,5 @@
-import { ControlRoomGame } from "@/components/ControlRoomGame";
+import { ScenarioLibrary } from "@/components/ScenarioLibrary";
 
 export default function Home() {
-  return <ControlRoomGame />;
+  return <ScenarioLibrary />;
 }
