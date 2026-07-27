@@ -4,6 +4,7 @@ import { useState } from "react";
 import { scenarioModels } from "@/lib/scenarios/registry";
 import { ControlRoomGame } from "./ControlRoomGame";
 import { GenericScenarioGame } from "./GenericScenarioGame";
+import { ScenarioEmblem } from "./ScenarioTheme";
 
 type Selection = "library" | "narrows" | string;
 
@@ -67,8 +68,15 @@ export function ScenarioLibrary() {
       </section>
       <section className="scenario-library__grid" aria-label="Playable scenario library">
         {cards.map((card, index) => (
-          <article className="library-card" key={card.id} style={{ "--card-accent": card.accent } as React.CSSProperties}>
+          <article
+            className="library-card"
+            data-scenario={card.id}
+            key={card.id}
+            style={{ "--card-accent": card.accent } as React.CSSProperties}
+          >
+            <div className="library-card__graphic" aria-hidden="true" />
             <div className="library-card__number">{String(index + 1).padStart(2, "0")}</div>
+            <ScenarioEmblem scenarioId={card.id} />
             <div className="library-card__meta"><span>{card.period}</span><span>{card.fidelity}</span></div>
             <h2>{card.title}</h2>
             <p>{card.deck}</p>

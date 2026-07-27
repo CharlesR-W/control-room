@@ -5586,7 +5586,7 @@ a {
   align-items: center;
 }
 
-.scenario-wordmark span {
+.scenario-wordmark > span {
   width: 18px;
   height: 18px;
   border: 1px solid var(--scenario-accent);
@@ -6134,5 +6134,667 @@ a {
   .scenario-trace,
   .scenario-game__aside {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Scenario identities */
+
+.scenario-emblem {
+  position: relative;
+  display: flex;
+  width: fit-content;
+  color: var(--scenario-accent, var(--card-accent));
+  gap: 11px;
+  align-items: center;
+}
+
+.scenario-emblem__shape {
+  position: relative;
+  display: block;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+}
+
+.scenario-emblem__shape i {
+  position: absolute;
+  display: block;
+}
+
+.scenario-emblem__copy {
+  display: grid;
+  gap: 2px;
+}
+
+.scenario-emblem__copy strong {
+  color: var(--text);
+  font-size: 0.66rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.scenario-emblem__copy small {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+}
+
+.scenario-emblem[data-compact] .scenario-emblem__shape {
+  width: 44px;
+  height: 44px;
+  margin: -9px;
+  transform: scale(0.59);
+  transform-origin: center;
+}
+
+.library-card .scenario-emblem {
+  z-index: 1;
+  margin-bottom: 20px;
+}
+
+.library-card__graphic {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  opacity: 0.42;
+  pointer-events: none;
+}
+
+.library-card__meta {
+  margin-bottom: 30px;
+}
+
+.scenario-briefing,
+.scenario-game,
+.scenario-aar {
+  --theme-bg-deep: #0d1718;
+  --theme-panel: #122022;
+  --theme-panel-raised: #172729;
+  --theme-line: #2b4245;
+  --theme-line-soft: rgba(137, 168, 164, 0.15);
+  --theme-secondary: var(--scenario-accent);
+  --theme-display: Georgia, "Times New Roman", serif;
+  --theme-radius: 8px;
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  --bg: var(--theme-bg-deep);
+  --panel: var(--theme-panel);
+  --line: var(--theme-line);
+  --line-soft: var(--theme-line-soft);
+  background: transparent;
+}
+
+.scenario-theme-atmosphere {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.scenario-theme-atmosphere::after {
+  position: absolute;
+  right: clamp(18px, 5vw, 78px);
+  bottom: 24px;
+  color: color-mix(in srgb, var(--scenario-accent) 11%, transparent);
+  content: "";
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: clamp(2.8rem, 8vw, 8rem);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 0.85;
+  text-align: right;
+  white-space: pre;
+}
+
+.scenario-briefing h1,
+.scenario-game__phase h1,
+.scenario-aar h1,
+.scenario-panel h2,
+.scenario-metrics strong {
+  font-family: var(--theme-display);
+}
+
+.scenario-briefing__desk,
+.scenario-panel,
+.scenario-metrics article,
+.scenario-action {
+  border-radius: var(--theme-radius);
+  background-color: var(--theme-panel);
+}
+
+.scenario-game__topbar {
+  background: color-mix(in srgb, var(--theme-bg-deep) 95%, transparent);
+}
+
+.scenario-game__phase::before {
+  position: absolute;
+  top: 13px;
+  left: clamp(16px, 3vw, 42px);
+  width: 42px;
+  height: 1px;
+  background: var(--scenario-accent);
+  content: "";
+}
+
+.scenario-briefing .scenario-emblem {
+  margin-bottom: 28px;
+}
+
+.scenario-aar > header .scenario-emblem {
+  margin-bottom: 24px;
+}
+
+/* Controlled Materials — amber blueprint and allotment board */
+
+:where(.scenario-briefing, .scenario-game, .scenario-aar)[data-scenario="controlled-materials-1943"] {
+  --theme-bg-deep: #111719;
+  --theme-panel: rgba(24, 30, 31, 0.94);
+  --theme-panel-raised: #20292a;
+  --theme-line: #544a35;
+  --theme-line-soft: rgba(211, 154, 73, 0.16);
+  --theme-secondary: #91aaa8;
+  --theme-display: "Arial Narrow", "Roboto Condensed", Inter, sans-serif;
+  --theme-radius: 2px;
+  --text: #f1eee4;
+  --text-soft: #d1cec3;
+  --muted: #929a96;
+  --teal: #d39a49;
+  --teal-strong: #e5b468;
+  --amber: #e5b468;
+}
+
+[data-scenario="controlled-materials-1943"] .scenario-theme-atmosphere {
+  background:
+    linear-gradient(rgba(211, 154, 73, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(211, 154, 73, 0.035) 1px, transparent 1px),
+    radial-gradient(circle at 82% 12%, rgba(211, 154, 73, 0.12), transparent 27rem),
+    linear-gradient(145deg, #111719, #0c1113);
+  background-size: 32px 32px, 32px 32px, auto, auto;
+}
+
+[data-scenario="controlled-materials-1943"] .scenario-theme-atmosphere::after {
+  content: "MATERIAL\A CAPACITY\A TIME";
+}
+
+[data-scenario="controlled-materials-1943"] .scenario-panel,
+[data-scenario="controlled-materials-1943"] .scenario-metrics article {
+  box-shadow: inset 3px 0 0 rgba(211, 154, 73, 0.34);
+}
+
+[data-scenario="controlled-materials-1943"] .scenario-action {
+  background:
+    repeating-linear-gradient(135deg, transparent 0 9px, rgba(211, 154, 73, 0.018) 9px 10px),
+    rgba(13, 18, 19, 0.44);
+}
+
+[data-scenario="controlled-materials-1943"] .scenario-emblem__shape {
+  border: 1px solid currentColor;
+  background: repeating-linear-gradient(0deg, transparent 0 8px, currentColor 8px 9px);
+}
+
+[data-scenario="controlled-materials-1943"] .scenario-emblem__shape::after {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 13px;
+  height: 13px;
+  border: 1px solid currentColor;
+  background: var(--theme-bg-deep);
+  content: "";
+}
+
+[data-scenario="controlled-materials-1943"] .scenario-emblem__shape i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+[data-scenario="controlled-materials-1943"] .scenario-emblem__shape i:nth-child(1) { top: 4px; left: 4px; }
+[data-scenario="controlled-materials-1943"] .scenario-emblem__shape i:nth-child(2) { top: 4px; right: 4px; }
+[data-scenario="controlled-materials-1943"] .scenario-emblem__shape i:nth-child(3) { bottom: 4px; left: 4px; }
+
+.library-card[data-scenario="controlled-materials-1943"] {
+  --theme-bg-deep: #111719;
+  --theme-secondary: #91aaa8;
+  border-radius: 2px;
+  background: #151b1c;
+}
+
+.library-card[data-scenario="controlled-materials-1943"] .library-card__graphic {
+  background:
+    linear-gradient(rgba(211, 154, 73, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(211, 154, 73, 0.09) 1px, transparent 1px),
+    linear-gradient(135deg, rgba(211, 154, 73, 0.1), transparent 52%);
+  background-size: 24px 24px, 24px 24px, auto;
+}
+
+/* North Atlantic — naval chart, range rings, and convoy track */
+
+:where(.scenario-briefing, .scenario-game, .scenario-aar)[data-scenario="north-atlantic-1942"] {
+  --theme-bg-deep: #07151f;
+  --theme-panel: rgba(10, 29, 41, 0.94);
+  --theme-panel-raised: #102b3b;
+  --theme-line: #294c61;
+  --theme-line-soft: rgba(121, 169, 199, 0.16);
+  --theme-secondary: #d1c08c;
+  --theme-display: "Trebuchet MS", Inter, sans-serif;
+  --theme-radius: 12px;
+  --text: #edf3f3;
+  --text-soft: #c7d5da;
+  --muted: #829ba8;
+  --teal: #79a9c7;
+  --teal-strong: #9bc7df;
+  --amber: #d1c08c;
+}
+
+[data-scenario="north-atlantic-1942"] .scenario-theme-atmosphere {
+  background:
+    repeating-radial-gradient(circle at 82% 18%, transparent 0 59px, rgba(121, 169, 199, 0.065) 60px 61px),
+    linear-gradient(113deg, transparent 48.8%, rgba(121, 169, 199, 0.065) 49%, transparent 49.2%),
+    radial-gradient(circle at 15% 82%, rgba(48, 107, 139, 0.13), transparent 30rem),
+    #07151f;
+}
+
+[data-scenario="north-atlantic-1942"] .scenario-theme-atmosphere::after {
+  content: "HX · SC\A 270° / 18";
+}
+
+[data-scenario="north-atlantic-1942"] .scenario-panel,
+[data-scenario="north-atlantic-1942"] .scenario-metrics article {
+  box-shadow: inset 0 1px 0 rgba(155, 199, 223, 0.08), 0 12px 32px rgba(0, 8, 15, 0.16);
+}
+
+[data-scenario="north-atlantic-1942"] .scenario-progress span {
+  background: linear-gradient(90deg, #517f99, #b4d7e7);
+}
+
+[data-scenario="north-atlantic-1942"] .scenario-emblem__shape {
+  border: 1px solid currentColor;
+  border-radius: 50%;
+}
+
+[data-scenario="north-atlantic-1942"] .scenario-emblem__shape::before {
+  position: absolute;
+  top: 50%;
+  right: -6px;
+  left: -6px;
+  height: 1px;
+  background: currentColor;
+  content: "";
+}
+
+[data-scenario="north-atlantic-1942"] .scenario-emblem__shape::after {
+  position: absolute;
+  inset: 7px;
+  border: 1px dashed currentColor;
+  border-radius: 50%;
+  content: "";
+  opacity: 0.65;
+}
+
+[data-scenario="north-atlantic-1942"] .scenario-emblem__shape i {
+  z-index: 1;
+  top: calc(50% - 2px);
+  width: 5px;
+  height: 5px;
+  border: 1px solid var(--theme-bg-deep);
+  border-radius: 50%;
+  background: currentColor;
+}
+
+[data-scenario="north-atlantic-1942"] .scenario-emblem__shape i:nth-child(1) { left: 4px; }
+[data-scenario="north-atlantic-1942"] .scenario-emblem__shape i:nth-child(2) { left: 18px; }
+[data-scenario="north-atlantic-1942"] .scenario-emblem__shape i:nth-child(3) { right: 4px; }
+
+.library-card[data-scenario="north-atlantic-1942"] {
+  --theme-bg-deep: #07151f;
+  --theme-secondary: #d1c08c;
+  border-radius: 13px 3px 13px 3px;
+  background: #0b1c27;
+}
+
+.library-card[data-scenario="north-atlantic-1942"] .library-card__graphic {
+  background:
+    repeating-radial-gradient(circle at 83% 12%, transparent 0 34px, rgba(121, 169, 199, 0.14) 35px 36px),
+    linear-gradient(120deg, transparent 49%, rgba(121, 169, 199, 0.13) 49.2%, transparent 49.4%);
+}
+
+/* Apollo Integration — mission control telemetry and orbital geometry */
+
+:where(.scenario-briefing, .scenario-game, .scenario-aar)[data-scenario="apollo-integration-1966"] {
+  --theme-bg-deep: #0c1014;
+  --theme-panel: rgba(24, 28, 31, 0.96);
+  --theme-panel-raised: #24292c;
+  --theme-line: #4e4b43;
+  --theme-line-soft: rgba(242, 163, 58, 0.17);
+  --theme-secondary: #e8e4d8;
+  --theme-display: "Arial Narrow", "Roboto Condensed", Inter, sans-serif;
+  --theme-radius: 1px;
+  --text: #f2efe5;
+  --text-soft: #d2cec1;
+  --muted: #96958e;
+  --teal: #f2a33a;
+  --teal-strong: #ffbd62;
+  --amber: #f2a33a;
+}
+
+[data-scenario="apollo-integration-1966"] .scenario-theme-atmosphere {
+  background:
+    repeating-linear-gradient(0deg, transparent 0 5px, rgba(242, 163, 58, 0.025) 5px 6px),
+    radial-gradient(ellipse at 78% 11%, transparent 0 118px, rgba(242, 163, 58, 0.11) 119px 120px, transparent 121px),
+    radial-gradient(circle at 78% 11%, rgba(242, 163, 58, 0.14), transparent 7px, transparent 8px),
+    linear-gradient(145deg, #0c1014, #14171a);
+}
+
+[data-scenario="apollo-integration-1966"] .scenario-theme-atmosphere::after {
+  content: "GO / NO-GO\A 0066:MET";
+}
+
+[data-scenario="apollo-integration-1966"] .scenario-panel,
+[data-scenario="apollo-integration-1966"] .scenario-metrics article,
+[data-scenario="apollo-integration-1966"] .scenario-action {
+  border-left-color: rgba(242, 163, 58, 0.58);
+}
+
+[data-scenario="apollo-integration-1966"] .scenario-metrics strong,
+[data-scenario="apollo-integration-1966"] .scenario-action__control,
+[data-scenario="apollo-integration-1966"] .scenario-game__topbar > div:last-of-type {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+[data-scenario="apollo-integration-1966"] .scenario-emblem__shape::before {
+  position: absolute;
+  inset: 8px -2px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  content: "";
+  transform: rotate(-27deg);
+}
+
+[data-scenario="apollo-integration-1966"] .scenario-emblem__shape::after {
+  position: absolute;
+  inset: 14px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 16px currentColor;
+  content: "";
+}
+
+[data-scenario="apollo-integration-1966"] .scenario-emblem__shape i:nth-child(1) {
+  top: 5px;
+  right: 3px;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--theme-bg-deep);
+  border-radius: 50%;
+  background: currentColor;
+}
+
+[data-scenario="apollo-integration-1966"] .scenario-emblem__shape i:nth-child(2) {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.35;
+}
+
+[data-scenario="apollo-integration-1966"] .scenario-emblem__shape i:nth-child(3) {
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 100%;
+  background: currentColor;
+  opacity: 0.35;
+}
+
+.library-card[data-scenario="apollo-integration-1966"] {
+  --theme-bg-deep: #0c1014;
+  --theme-secondary: #e8e4d8;
+  border-radius: 1px;
+  background: #171a1c;
+}
+
+.library-card[data-scenario="apollo-integration-1966"]::before {
+  height: 5px;
+  background: linear-gradient(90deg, #e05e3f 0 20%, #f2a33a 20% 76%, #ebe5d6 76%);
+}
+
+.library-card[data-scenario="apollo-integration-1966"] .library-card__graphic {
+  background:
+    repeating-linear-gradient(0deg, transparent 0 5px, rgba(242, 163, 58, 0.07) 5px 6px),
+    radial-gradient(ellipse at 87% 8%, transparent 0 72px, rgba(242, 163, 58, 0.15) 73px 74px, transparent 75px);
+}
+
+/* Sterling — gilt reserve ledger and institutional paper */
+
+:where(.scenario-briefing, .scenario-game, .scenario-aar)[data-scenario="sterling-1931"] {
+  --theme-bg-deep: #171214;
+  --theme-panel: rgba(35, 27, 28, 0.96);
+  --theme-panel-raised: #302326;
+  --theme-line: #6b5644;
+  --theme-line-soft: rgba(200, 164, 92, 0.17);
+  --theme-secondary: #8d4d52;
+  --theme-display: Baskerville, "Iowan Old Style", Georgia, serif;
+  --theme-radius: 0;
+  --text: #f2e9d6;
+  --text-soft: #d8cbb7;
+  --muted: #a08e7f;
+  --teal: #c8a45c;
+  --teal-strong: #e0c27b;
+  --amber: #d4ad65;
+}
+
+[data-scenario="sterling-1931"] .scenario-theme-atmosphere {
+  background:
+    repeating-linear-gradient(0deg, transparent 0 31px, rgba(200, 164, 92, 0.045) 31px 32px),
+    linear-gradient(90deg, transparent 0 11%, rgba(141, 77, 82, 0.13) 11% 11.15%, transparent 11.15%),
+    radial-gradient(circle at 72% 4%, rgba(126, 88, 50, 0.16), transparent 32rem),
+    #171214;
+}
+
+[data-scenario="sterling-1931"] .scenario-theme-atmosphere::after {
+  content: "£ / RESERVE\A DR      CR";
+  font-family: var(--theme-display);
+  font-style: italic;
+}
+
+[data-scenario="sterling-1931"] .scenario-panel,
+[data-scenario="sterling-1931"] .scenario-briefing__desk,
+[data-scenario="sterling-1931"] .scenario-metrics article {
+  border: 3px double #6b5644;
+  box-shadow: 0 10px 32px rgba(8, 4, 5, 0.22);
+}
+
+[data-scenario="sterling-1931"] .scenario-action {
+  border-width: 0 0 1px;
+  background: rgba(64, 43, 43, 0.18);
+}
+
+[data-scenario="sterling-1931"] .scenario-objectives li {
+  border-bottom-style: double;
+}
+
+[data-scenario="sterling-1931"] .scenario-emblem__shape {
+  border: 3px double currentColor;
+}
+
+[data-scenario="sterling-1931"] .scenario-emblem__shape::after {
+  position: absolute;
+  inset: 0;
+  content: "£";
+  font-family: var(--theme-display);
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 39px;
+  text-align: center;
+}
+
+[data-scenario="sterling-1931"] .scenario-emblem__shape i {
+  right: 4px;
+  left: 4px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.3;
+}
+
+[data-scenario="sterling-1931"] .scenario-emblem__shape i:nth-child(1) { top: 8px; }
+[data-scenario="sterling-1931"] .scenario-emblem__shape i:nth-child(2) { top: 20px; }
+[data-scenario="sterling-1931"] .scenario-emblem__shape i:nth-child(3) { bottom: 8px; }
+
+.library-card[data-scenario="sterling-1931"] {
+  --theme-bg-deep: #171214;
+  --theme-secondary: #8d4d52;
+  border: 3px double #67513b;
+  border-radius: 0;
+  background: #241b1d;
+}
+
+.library-card[data-scenario="sterling-1931"] .library-card__graphic {
+  background:
+    repeating-linear-gradient(0deg, transparent 0 27px, rgba(200, 164, 92, 0.09) 27px 28px),
+    linear-gradient(90deg, transparent 0 13%, rgba(141, 77, 82, 0.16) 13% 13.4%, transparent 13.4%);
+}
+
+/* Bottleneck Economy — coupled network and planning board */
+
+:where(.scenario-briefing, .scenario-game, .scenario-aar)[data-scenario="bottleneck-economy-1981"] {
+  --theme-bg-deep: #121615;
+  --theme-panel: rgba(24, 31, 29, 0.96);
+  --theme-panel-raised: #202c29;
+  --theme-line: #465a51;
+  --theme-line-soft: rgba(91, 159, 137, 0.16);
+  --theme-secondary: #5fa38c;
+  --theme-display: "Arial Narrow", "Roboto Condensed", Inter, sans-serif;
+  --theme-radius: 3px;
+  --text: #f0eee5;
+  --text-soft: #ced5ce;
+  --muted: #8e9d95;
+  --teal: #c28a52;
+  --teal-strong: #d8a36c;
+  --amber: #d8a36c;
+}
+
+[data-scenario="bottleneck-economy-1981"] .scenario-theme-atmosphere {
+  background:
+    linear-gradient(30deg, transparent 48.8%, rgba(95, 163, 140, 0.045) 49%, transparent 49.2%),
+    linear-gradient(150deg, transparent 48.8%, rgba(95, 163, 140, 0.045) 49%, transparent 49.2%),
+    radial-gradient(circle at 84% 15%, rgba(158, 67, 53, 0.14), transparent 26rem),
+    #121615;
+  background-size: 42px 72px, 42px 72px, auto, auto;
+}
+
+[data-scenario="bottleneck-economy-1981"] .scenario-theme-atmosphere::after {
+  color: rgba(95, 163, 140, 0.11);
+  content: "COAL → RAIL\A ↓      POWER";
+}
+
+[data-scenario="bottleneck-economy-1981"] .scenario-panel,
+[data-scenario="bottleneck-economy-1981"] .scenario-metrics article {
+  box-shadow: inset 0 3px 0 rgba(95, 163, 140, 0.16);
+}
+
+[data-scenario="bottleneck-economy-1981"] .scenario-action {
+  position: relative;
+  border-left: 3px solid var(--theme-secondary);
+  background:
+    linear-gradient(90deg, rgba(95, 163, 140, 0.07), transparent 34%),
+    rgba(13, 18, 17, 0.32);
+}
+
+[data-scenario="bottleneck-economy-1981"] .scenario-action::before {
+  position: absolute;
+  top: 18px;
+  left: -6px;
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--theme-bg-deep);
+  border-radius: 50%;
+  background: var(--theme-secondary);
+  content: "";
+}
+
+[data-scenario="bottleneck-economy-1981"] .scenario-progress span {
+  background: linear-gradient(90deg, #9e4335, #c28a52 52%, #5fa38c);
+}
+
+[data-scenario="bottleneck-economy-1981"] .scenario-emblem__shape {
+  border: 1px solid currentColor;
+  background:
+    linear-gradient(30deg, transparent 47%, currentColor 48% 50%, transparent 51%),
+    linear-gradient(150deg, transparent 47%, currentColor 48% 50%, transparent 51%);
+  opacity: 0.9;
+}
+
+[data-scenario="bottleneck-economy-1981"] .scenario-emblem__shape i {
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--theme-bg-deep);
+  border-radius: 50%;
+  background: var(--theme-secondary);
+}
+
+[data-scenario="bottleneck-economy-1981"] .scenario-emblem__shape i:nth-child(1) { top: 4px; left: 4px; }
+[data-scenario="bottleneck-economy-1981"] .scenario-emblem__shape i:nth-child(2) { top: 17px; right: 3px; }
+[data-scenario="bottleneck-economy-1981"] .scenario-emblem__shape i:nth-child(3) { bottom: 3px; left: 13px; }
+
+.library-card[data-scenario="bottleneck-economy-1981"] {
+  --theme-bg-deep: #121615;
+  --theme-secondary: #5fa38c;
+  border-radius: 3px;
+  background: #18201e;
+}
+
+.library-card[data-scenario="bottleneck-economy-1981"]::before {
+  background: linear-gradient(90deg, #9e4335 0 28%, #c28a52 28% 65%, #5fa38c 65%);
+}
+
+.library-card[data-scenario="bottleneck-economy-1981"] .library-card__graphic {
+  background:
+    linear-gradient(30deg, transparent 48%, rgba(95, 163, 140, 0.11) 49%, transparent 50%),
+    linear-gradient(150deg, transparent 48%, rgba(95, 163, 140, 0.11) 49%, transparent 50%);
+  background-size: 34px 58px;
+}
+
+/* Narrows library card keeps the existing teal logistics language. */
+
+.library-card[data-scenario="the-narrows"] .scenario-emblem__shape {
+  border: 1px solid currentColor;
+  transform: rotate(45deg);
+}
+
+.library-card[data-scenario="the-narrows"] .scenario-emblem__shape::after {
+  position: absolute;
+  inset: 11px;
+  border: 1px solid currentColor;
+  content: "";
+}
+
+.library-card[data-scenario="the-narrows"] .scenario-emblem__shape i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.library-card[data-scenario="the-narrows"] .scenario-emblem__shape i:nth-child(1) { top: 4px; left: 4px; }
+.library-card[data-scenario="the-narrows"] .scenario-emblem__shape i:nth-child(2) { top: 4px; right: 4px; }
+.library-card[data-scenario="the-narrows"] .scenario-emblem__shape i:nth-child(3) { right: 4px; bottom: 4px; }
+
+@media (max-width: 720px) {
+  .library-card .scenario-emblem {
+    margin-bottom: 14px;
+  }
+
+  .scenario-theme-atmosphere::after {
+    display: none;
+  }
+
+  .scenario-emblem__copy strong {
+    font-size: 0.61rem;
   }
 }
